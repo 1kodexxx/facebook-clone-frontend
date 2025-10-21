@@ -56,7 +56,7 @@ const RightSideBar = () => {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <CardTitle className="flex items-center text-lg font-semibold text-foreground">
             <TrendingUp className="mr-2 h-5 w-5 text-primary" />
             Popular Sponsors
           </CardTitle>
@@ -78,7 +78,9 @@ const RightSideBar = () => {
                   className="w-full h-40 object-contain rounded-md mb-2"
                 />
                 <div className="flex-1">
-                  <h3 className="text-md font-semibold">{sponsor.name}</h3>
+                  <h3 className="text-md font-semibold dark:text-gray-100">
+                    {sponsor.name}
+                  </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     {sponsor.description}
                   </p>
