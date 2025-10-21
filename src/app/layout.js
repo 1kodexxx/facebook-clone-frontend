@@ -1,6 +1,7 @@
 import { ThemeProvider } from "next-themes";
 import localFont from "next/font/local";
 import { Toaster } from "react-hot-toast";
+import Header from "./components/Header";
 
 import "./globals.css";
 
@@ -26,8 +27,13 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {" "}
         <Toaster />
-        <ThemeProvider attribute="class">{children}</ThemeProvider>
+        <ThemeProvider attribute="class">
+          {" "}
+          <Header />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
