@@ -30,9 +30,11 @@ const LeftSideBar = () => {
           <div className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent rounded-md p-2 transition-colors">
             <Avatar className="h-10 w-10">
               <AvatarImage />
-              <AvatarFallback>D</AvatarFallback>
+              <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+                D
+              </AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-[15px] leading-none">
+            <span className="font-semibold text-[15px] leading-none text-gray-900 dark:text-white">
               Sasha Pushkin
             </span>
           </div>
@@ -48,7 +50,7 @@ const LeftSideBar = () => {
             <Button
               key={label}
               variant="ghost"
-              className="w-full justify-start font-normal text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="w-full justify-start font-normal text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-gray-800 dark:text-gray-200"
             >
               <Icon className="mr-3 h-5 w-5" />
               {label}
@@ -62,9 +64,11 @@ const LeftSideBar = () => {
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-9 w-9">
             <AvatarImage />
-            <AvatarFallback className="dark:bg-gray-400">D</AvatarFallback>
+            <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+              D
+            </AvatarFallback>
           </Avatar>
-          <span className="font-semibold text-[15px] leading-none">
+          <span className="font-semibold text-[15px] leading-none text-gray-900 dark:text-white">
             Sasha Pushkin
           </span>
         </div>

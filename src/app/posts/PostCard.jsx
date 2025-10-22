@@ -1,21 +1,68 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DialogHeader } from "@/components/ui/dialog";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@radix-ui/react-dialog";
-import { Separator } from "@radix-ui/react-dropdown-menu";
-import { motion } from "framer-motion";
-import { MessageCircle, MoreHorizontal, Share2, ThumbsUp } from "lucide-react";
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Facebook,
+  Linkedin,
+  Link as LinkIcon,
+  MessageCircle,
+  MoreHorizontal,
+  Share2,
+  ThumbsUp,
+  Twitter,
+} from "lucide-react";
 import { useState } from "react";
+import PostComments from "./PostComments";
 
 const PostCard = ({ post }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+
+  const generateSharedLink = () => {
+    return `https://localhost:3000/${post?._id}`;
+  };
+
+  const handleShare = (platform) => {
+    const url = generateSharedLink();
+
+    switch (platform) {
+      case "facebook":
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+          "_blank"
+        );
+        break;
+      case "twitter":
+        window.open(`https://twitter.com/intent/tweet?url=${url}`, "_blank");
+        break;
+      case "linkedin":
+        window.open(
+          `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+          "_blank"
+        );
+        break;
+      case "copy":
+        navigator.clipboard.writeText(url);
+        alert("✅ Link copied to clipboard!");
+        setIsShareDialogOpen(false);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <motion.div
       key={post?._id}
@@ -23,26 +70,36 @@ const PostCard = ({ post }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card>
+      <Card className="dark:bg-[rgb(36,37,38)] bg-white border border-gray-200 dark:border-gray-700">
         <CardContent className="p-6">
+          {/* Верхняя часть */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3 cursor-pointer">
               <Avatar>
                 <AvatarImage />
-                <AvatarFallback className="bg-gray-300 dark:bg-gray-600">
+                <AvatarFallback className="bg-gray-300 dark:bg-gray-600 text-black dark:text-white">
                   D
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-sembibold dark:text-white">Sasha Pushkin</p>
-                <p className="font-sm text-gray-500">20-05-2024</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  Sasha Pushkin
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  20-05-2024
+                </p>
               </div>
             </div>
-            <Button variant="ghost" className="dark:hover:bg-gray-500">
-              <MoreHorizontal className="dark:text-white h-4 w-4" />
+            <Button variant="ghost" className="dark:hover:bg-gray-600">
+              <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-200" />
             </Button>
           </div>
-          <p className="mb-4">{post?.content}</p>
+
+          {/* Контент */}
+          <p className="mb-4 text-gray-900 dark:text-gray-200">
+            {post?.content}
+          </p>
+
           {post?.mediaUrl && post.mediaType === "image" && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -59,27 +116,38 @@ const PostCard = ({ post }) => {
             </video>
           )}
 
+          {/* Статистика */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-500 dark:text-gray-400 hover:border-b-1 border-gray-200 cursor-pointer">
+            <span className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
               2 likes
             </span>
             <div className="flex gap-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400 hover:border-b-1 border-gray-200 cursor-pointer">
+              <span
+                className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
+                onClick={() => setShowComments(!showComments)}
+              >
                 3 comments
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 hover:border-b-1 border-gray-200 cursor-pointer">
+              <span className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                 3 share
               </span>
             </div>
           </div>
-          <Separator className="mb-2 dark:bg-gray-400" />
+
+          <Separator className="mb-2 dark:bg-gray-500" />
+
+          {/* Кнопки действий */}
           <div className="flex justify-between mb-2">
-            <Button variant="ghost" className={`flex dark:hover-bg-gray-600`}>
-              <ThumbsUp className="mr-2 h-4 w-4" /> Like
-            </Button>{" "}
-            <Button variant="ghost" className={`flex dark:hover-bg-gray-600`}>
-              <MessageCircle className="mr-2 h-4 w-4" /> Comment
-            </Button>{" "}
+            <Button variant="ghost" className="flex-1 dark:hover:bg-gray-700">
+              <ThumbsUp className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />{" "}
+              Like
+            </Button>
+            <Button variant="ghost" className="flex-1 dark:hover:bg-gray-700">
+              <MessageCircle className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />{" "}
+              Comment
+            </Button>
+
+            {/* === Share Dialog === */}
             <Dialog
               open={isShareDialogOpen}
               onOpenChange={setIsShareDialogOpen}
@@ -87,35 +155,76 @@ const PostCard = ({ post }) => {
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex-1 dark:hover:bg-gray-500"
+                  className="flex-1 dark:hover:bg-gray-700"
                 >
-                  <Share2 className="mr-2 h-4 w-4" />
+                  <Share2 className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />{" "}
                   Share
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+
+              <DialogContent className="sm:max-w-[400px] p-6 rounded-xl dark:bg-[rgb(36,37,38)] bg-white border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
                 <DialogHeader>
-                  <DialogTitle>Share this post</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle className="text-lg font-semibold mb-1">
+                    Share This Post
+                  </DialogTitle>
+                  <DialogDescription className="text-sm mb-4 text-gray-500 dark:text-gray-400">
                     Choose how you want to share this post
                   </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col space-y-4">
-                  <Button onClick={() => handleShare("facebook")}>
+
+                {/* Кнопки Share */}
+                <div className="flex flex-col space-y-3">
+                  <Button
+                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    onClick={() => handleShare("facebook")}
+                  >
+                    <Facebook className="h-4 w-4" />
                     Share on Facebook
-                  </Button>{" "}
-                  <Button onClick={() => handleShare("twitter")}>
+                  </Button>
+
+                  <Button
+                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    onClick={() => handleShare("twitter")}
+                  >
+                    <Twitter className="h-4 w-4" />
                     Share on Twitter
-                  </Button>{" "}
-                  <Button onClick={() => handleShare("linkedin")}>
+                  </Button>
+
+                  <Button
+                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    onClick={() => handleShare("linkedin")}
+                  >
+                    <Linkedin className="h-4 w-4" />
                     Share on Linkedin
                   </Button>
-                  <Button onClick={() => handleShare("copy")}>Copy Link</Button>
+
+                  <Button
+                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    onClick={() => handleShare("copy")}
+                  >
+                    <LinkIcon className="h-4 w-4" />
+                    Copy Link
+                  </Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
-          <Separator className="mb-2 dark:bg-gray-400" />
+
+          <Separator className="mb-2 dark:bg-gray-500" />
+
+          {/* Комментарии */}
+          <AnimatePresence>
+            {showComments && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <PostComments post={post} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
     </motion.div>
