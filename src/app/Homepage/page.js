@@ -12,7 +12,8 @@ export default function Page() {
     {
       _id: 1,
       content: "hello world",
-      mediaUrl: "http:/localhost",
+      mediaUrl:
+        "https://images.unsplash.com/photo-1760895986008-0a016173836c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
       mediaType: "image",
     },
   ];
@@ -28,9 +29,9 @@ export default function Page() {
               setIsPostFormOpen={setIsPostFormOpen}
             />
             <div className="mt-6 space-y-6">
-              {posts.map((post) => {
-                <PostCard key={post.id} post={post} />;
-              })}
+              {posts.map((post) => (
+                <PostCard key={post._id} post={post} />
+              ))}
             </div>
           </div>
         </div>

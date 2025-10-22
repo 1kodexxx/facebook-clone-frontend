@@ -35,6 +35,7 @@ const StoryCard = ({ isAddStory, story }) => {
           ) : (
             <>
               {story?.mediaType === "image" ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={story?.mediaUrl}
                   alt={story?.user?.userName || "Story"}
