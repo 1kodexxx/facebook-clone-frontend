@@ -49,7 +49,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
         <div className="flex space-x-4">
           <Avatar className="h-8 w-8">
             <AvatarImage />
-            <AvatarFallback>D</AvatarFallback>
+            <AvatarFallback className="dark:bg-gray-400">D</AvatarFallback>
           </Avatar>
 
           {/* Диалог создания поста */}
@@ -177,7 +177,6 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                   <Button
                     variant="outline"
                     size="icon"
-                    asChild
                     onClick={() =>
                       document.querySelector('input[type="file"]')?.click()
                     }

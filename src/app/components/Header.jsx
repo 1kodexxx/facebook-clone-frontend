@@ -27,10 +27,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import useSidebarStore from "../store/sidebarStore";
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { toggleSidebar } = useSidebarStore();
 
   return (
     <>
@@ -99,6 +101,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               className="md:hidden text-gray-600"
+              onClick={toggleSidebar}
             >
               <Menu />
             </Button>
