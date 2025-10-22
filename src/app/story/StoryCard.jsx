@@ -47,7 +47,6 @@ const StoryCard = ({ isAddStory, story }) => {
                   className="w-full h-full object-cover"
                 />
               )}
-
               <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage />
