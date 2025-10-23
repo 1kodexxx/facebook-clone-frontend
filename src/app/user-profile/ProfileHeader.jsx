@@ -16,7 +16,7 @@ import { useState } from "react";
 
 const ProfileHeader = () => {
   const [isEditProfileModal, setIsEditProfileModal] = useState(false);
-  const [isEditCoverModel, setIsEditCoverModel] = useState(false);
+  const [isEditCoverModal, setIsEditCoverModal] = useState(false);
   const [isCoverPhotoPreview, setIsCoverPhotoPreview] = useState(false);
 
   return (
@@ -28,12 +28,13 @@ const ProfileHeader = () => {
           className="absolute bottom-4 right-4 flex items-center"
           variant="secondary"
           size="sm"
-          onClick={() => setIsEditCoverModel(true)}
+          onClick={() => setIsEditCoverModal(true)}
         >
           <Camera className="mr-2 h-4 w-4" />
           <span className="hidden md:block">Edit Cover Photo</span>
         </Button>
       </div>
+
       {/* ==== PROFILE INFO ==== */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
         <div className="flex flex-col md:flex-row items-center md:items-end md:space-x-5">
@@ -62,6 +63,7 @@ const ProfileHeader = () => {
           </Button>
         </div>
       </div>
+
       {/* ==== EDIT PROFILE MODAL ==== */}
       <AnimatePresence>
         {isEditProfileModal && (
@@ -140,7 +142,7 @@ const ProfileHeader = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-2"
                 >
                   <Save className="h-4 w-4" />
                   Save Changes
@@ -153,7 +155,7 @@ const ProfileHeader = () => {
 
       {/* ==== EDIT COVER MODAL ==== */}
       <AnimatePresence>
-        {isEditCoverModel && (
+        {isEditCoverModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -167,7 +169,6 @@ const ProfileHeader = () => {
               transition={{ duration: 0.2 }}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md"
             >
-              {/* === HEADER === */}
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   Edit Cover Photo
@@ -175,13 +176,12 @@ const ProfileHeader = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setisEditCoverModel(false)}
+                  onClick={() => setIsEditCoverModal(false)}
                 >
                   <X className="h-5 w-5 text-gray-700 dark:text-gray-200" />
                 </Button>
               </div>
 
-              {/* === FORM === */}
               <form className="space-y-5">
                 <div className="flex flex-col items-center mb-4">
                   {isCoverPhotoPreview && (
@@ -205,7 +205,7 @@ const ProfileHeader = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-2"
                 >
                   <Save className="h-4 w-4" />
                   Save Cover Photo
