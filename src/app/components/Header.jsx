@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   Home,
@@ -24,7 +25,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // ✅ правильный хук для App Router
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import useSidebarStore from "../store/sidebarStore";
 
@@ -34,9 +35,14 @@ const Header = () => {
   const { toggleSidebar } = useSidebarStore();
   const router = useRouter();
 
-  // === Маршрутизация ===
   const handleNavigation = (path) => {
     router.push(path);
+  };
+
+  const handleLogout = () => {
+    // Фейковый logout
+    localStorage.removeItem("user");
+    router.push("/");
   };
 
   return (
@@ -56,38 +62,49 @@ const Header = () => {
               onClick={() => handleNavigation("/")}
             />
 
-            {/* Поиск — только на >= md */}
+            {/* ==== Поиск ==== */}
             <div className="relative hidden md:block">
               <form>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    className="pl-9 w-56 lg:w-72 h-10 bg-gray-100 dark:bg-[rgb(58,59,60)] rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
+                    className="pl-11 w-56 lg:w-72 h-10 bg-gray-100 dark:bg-[rgb(58,59,60)] rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
                     placeholder="Search Facebook..."
                     onFocus={() => setIsSearchOpen(true)}
                     onBlur={() => setTimeout(() => setIsSearchOpen(false), 200)}
                   />
                 </div>
 
-                {isSearchOpen && (
-                  <div className="absolute top-full left-0 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg mt-1 z-50">
-                    <div className="p-2">
-                      <div className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage />
-                          <AvatarFallback>D</AvatarFallback>
-                        </Avatar>
-                        <span>Sasha Pushkin</span>
+                {/* === Выпадающий блок поиска === */}
+                <AnimatePresence>
+                  {isSearchOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full left-0 w-full bg-white dark:bg-[rgb(50,51,52)] border border-gray-200 dark:border-gray-700 rounded-md shadow-lg mt-1 z-50"
+                    >
+                      <div className="p-2">
+                        <div className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage />
+                            <AvatarFallback>D</AvatarFallback>
+                          </Avatar>
+                          <span className="text-gray-700 dark:text-gray-200">
+                            Sasha Pushkin
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </form>
             </div>
           </div>
 
-          {/* ==== ЦЕНТРАЛЬНЫЕ ИКОНКИ (ТОЛЬКО ДЕСКТОП) ==== */}
+          {/* ==== ЦЕНТРАЛЬНЫЕ ИКОНКИ ==== */}
           <nav className="hidden md:flex justify-center flex-1 max-w-md gap-10">
             {[
               { icon: Home, path: "/", label: "Home" },
@@ -109,11 +126,11 @@ const Header = () => {
 
           {/* ==== ПРАВАЯ ЧАСТЬ ==== */}
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            {/* Mobile menu toggle */}
+            {/* Mobile Menu */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden text-gray-600"
+              className="md:hidden text-gray-600 dark:text-gray-300"
               onClick={toggleSidebar}
             >
               <Menu />
@@ -123,7 +140,7 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors"
               onClick={() => handleNavigation("/notifications")}
             >
               <Bell />
@@ -133,7 +150,7 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="hidden md:block text-gray-600 hover:text-blue-600 transition-colors"
+              className="hidden md:block text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors"
               onClick={() => handleNavigation("/messages")}
             >
               <MessageCircle />
@@ -155,7 +172,10 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="w-64 z-50" align="end">
+              <DropdownMenuContent
+                className="w-64 z-50 bg-white dark:bg-[rgb(44,45,46)] border-gray-200 dark:border-gray-700"
+                align="end"
+              >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex items-center">
                     <Avatar className="h-8 w-8 mr-2">
@@ -163,10 +183,10 @@ const Header = () => {
                       <AvatarFallback>D</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium leading-none">
+                      <p className="text-sm font-medium leading-none dark:text-gray-100">
                         Sasha Pushkin
                       </p>
-                      <p className="text-xs mt-1 text-gray-500">
+                      <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                         pvntheraxxx@gmail.com
                       </p>
                     </div>
@@ -176,7 +196,7 @@ const Header = () => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-2 cursor-pointer dark:text-gray-200"
                   onClick={() => handleNavigation("/user-profile")}
                 >
                   <Users size={16} />
@@ -184,7 +204,7 @@ const Header = () => {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-2 cursor-pointer dark:text-gray-200"
                   onClick={() => handleNavigation("/messages")}
                 >
                   <MessageCircle size={16} />
@@ -193,24 +213,30 @@ const Header = () => {
 
                 <DropdownMenuSeparator />
 
+                {/* Theme toggle with animation */}
                 <DropdownMenuItem
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-2 cursor-pointer dark:text-gray-200"
                 >
-                  {theme === "light" ? (
-                    <>
+                  <motion.div
+                    key={theme}
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {theme === "light" ? (
                       <Moon className="size-4" />
-                      <span>Dark Mode</span>
-                    </>
-                  ) : (
-                    <>
+                    ) : (
                       <Sun className="size-4" />
-                      <span>Light Mode</span>
-                    </>
-                  )}
+                    )}
+                  </motion.div>
+                  <span>{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-600">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 cursor-pointer text-red-600 dark:text-red-400"
+                  onClick={handleLogout}
+                >
                   <LogOut size={16} />
                   <span>Logout</span>
                 </DropdownMenuItem>

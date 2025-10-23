@@ -36,7 +36,7 @@ const LeftSideBar = () => {
         <nav className="space-y-1">
           <div
             className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
-            onClick={() => handleNavigation("/profile")}
+            onClick={() => handleNavigation("/")}
           >
             <Avatar className="h-10 w-10">
               <AvatarImage />
