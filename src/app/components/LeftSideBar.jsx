@@ -11,7 +11,7 @@ import {
   Users,
   Video,
 } from "lucide-react";
-import { useRouter } from "next/navigation"; // ✅ App Router
+import { useRouter } from "next/navigation";
 import useSidebarStore from "../store/sidebarStore";
 
 const LeftSideBar = () => {
@@ -53,7 +53,7 @@ const LeftSideBar = () => {
             { icon: Home, label: "Home", path: "/" },
             { icon: Users, label: "Friends", path: "/friends-list" },
             { icon: Video, label: "Video", path: "/video-feed" },
-            { icon: User, label: "Profile", path: "/profile" },
+            { icon: User, label: "Profile", path: "/user-profile" },
             { icon: MessageCircle, label: "Messages", path: "/messages" },
             { icon: Bell, label: "Notifications", path: "/notifications" },
           ].map(({ icon: Icon, label, path }) => (

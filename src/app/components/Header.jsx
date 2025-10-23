@@ -177,7 +177,7 @@ const Header = () => {
 
                 <DropdownMenuItem
                   className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => handleNavigation("/profile")}
+                  onClick={() => handleNavigation("/user-profile")}
                 >
                   <Users size={16} />
                   <span>Profile</span>
