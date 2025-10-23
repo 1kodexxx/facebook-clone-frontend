@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Bell,
   Home,
@@ -25,6 +24,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // ✅ правильный хук для App Router
 import { useState } from "react";
 import useSidebarStore from "../store/sidebarStore";
 
@@ -32,6 +32,12 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { toggleSidebar } = useSidebarStore();
+  const router = useRouter();
+
+  // === Маршрутизация ===
+  const handleNavigation = (path) => {
+    router.push(path);
+  };
 
   return (
     <>
@@ -47,6 +53,7 @@ const Header = () => {
               alt="facebook_logo"
               priority
               className="cursor-pointer"
+              onClick={() => handleNavigation("/")}
             />
 
             {/* Поиск — только на >= md */}
@@ -54,7 +61,8 @@ const Header = () => {
               <form>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <Input
+                  <input
+                    type="text"
                     className="pl-9 w-56 lg:w-72 h-10 bg-gray-100 dark:bg-[rgb(58,59,60)] rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all"
                     placeholder="Search Facebook..."
                     onFocus={() => setIsSearchOpen(true)}
@@ -81,12 +89,18 @@ const Header = () => {
 
           {/* ==== ЦЕНТРАЛЬНЫЕ ИКОНКИ (ТОЛЬКО ДЕСКТОП) ==== */}
           <nav className="hidden md:flex justify-center flex-1 max-w-md gap-10">
-            {[Home, Video, Users].map((Icon, i) => (
+            {[
+              { icon: Home, path: "/", label: "Home" },
+              { icon: Video, path: "/video-feed", label: "Video" },
+              { icon: Users, path: "/friends-list", label: "Friends" },
+            ].map(({ icon: Icon, path, label }) => (
               <Button
-                key={i}
+                key={label}
                 variant="ghost"
                 size="icon"
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:bg-transparent transition-all"
+                onClick={() => handleNavigation(path)}
+                title={label}
               >
                 <Icon size={26} />
               </Button>
@@ -110,6 +124,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               className="text-gray-600 hover:text-blue-600 transition-colors"
+              onClick={() => handleNavigation("/notifications")}
             >
               <Bell />
             </Button>
@@ -119,6 +134,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               className="hidden md:block text-gray-600 hover:text-blue-600 transition-colors"
+              onClick={() => handleNavigation("/messages")}
             >
               <MessageCircle />
             </Button>
@@ -159,12 +175,18 @@ const Header = () => {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => handleNavigation("/profile")}
+                >
                   <Users size={16} />
                   <span>Profile</span>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => handleNavigation("/messages")}
+                >
                   <MessageCircle size={16} />
                   <span>Messages</span>
                 </DropdownMenuItem>
@@ -200,12 +222,18 @@ const Header = () => {
 
       {/* ==== НИЖНЯЯ НАВИГАЦИЯ (ТОЛЬКО ДЛЯ МОБИЛЬНЫХ) ==== */}
       <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[rgb(36,37,38)] border-t border-gray-200 dark:border-gray-700 md:hidden flex justify-around py-2 z-40">
-        {[Home, Video, Users].map((Icon, i) => (
+        {[
+          { icon: Home, path: "/", label: "Home" },
+          { icon: Video, path: "/video-feed", label: "Video" },
+          { icon: Users, path: "/friends-list", label: "Friends" },
+        ].map(({ icon: Icon, path, label }) => (
           <Button
-            key={i}
+            key={label}
             variant="ghost"
             size="icon"
             className="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors"
+            onClick={() => handleNavigation(path)}
+            title={label}
           >
             <Icon size={24} />
           </Button>

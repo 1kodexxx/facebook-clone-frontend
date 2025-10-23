@@ -1,4 +1,5 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,10 +11,17 @@ import {
   Users,
   Video,
 } from "lucide-react";
+import { useRouter } from "next/navigation"; // ✅ App Router
 import useSidebarStore from "../store/sidebarStore";
 
 const LeftSideBar = () => {
   const { isSidebarOpen, toggleSidebar } = useSidebarStore();
+  const router = useRouter();
+
+  const handleNavigation = (path) => {
+    router.push(path);
+    toggleSidebar(); // закрыть меню на мобильных после перехода
+  };
 
   return (
     <aside
@@ -26,7 +34,10 @@ const LeftSideBar = () => {
       {/* ==== Навигация ==== */}
       <div className="flex flex-col overflow-y-auto">
         <nav className="space-y-1">
-          <div className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent rounded-md p-2 transition-colors">
+          <div
+            className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent rounded-md p-2 transition-colors"
+            onClick={() => handleNavigation("/profile")}
+          >
             <Avatar className="h-10 w-10">
               <AvatarImage />
               <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
@@ -39,17 +50,18 @@ const LeftSideBar = () => {
           </div>
 
           {[
-            { icon: Home, label: "Home" },
-            { icon: Users, label: "Friends" },
-            { icon: Video, label: "Video" },
-            { icon: User, label: "Profile" },
-            { icon: MessageCircle, label: "Messages" },
-            { icon: Bell, label: "Notifications" },
-          ].map(({ icon: Icon, label }) => (
+            { icon: Home, label: "Home", path: "/" },
+            { icon: Users, label: "Friends", path: "/friends-list" },
+            { icon: Video, label: "Video", path: "/video-feed" },
+            { icon: User, label: "Profile", path: "/profile" },
+            { icon: MessageCircle, label: "Messages", path: "/messages" },
+            { icon: Bell, label: "Notifications", path: "/notifications" },
+          ].map(({ icon: Icon, label, path }) => (
             <Button
               key={label}
               variant="ghost"
               className="w-full justify-start font-normal text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-gray-800 dark:text-gray-200"
+              onClick={() => handleNavigation(path)}
             >
               <Icon className="mr-3 h-5 w-5" />
               {label}
@@ -73,7 +85,10 @@ const LeftSideBar = () => {
         </div>
 
         <div className="text-xs text-muted-foreground space-y-1">
-          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-red-600 transition-colors">
+          <div
+            className="flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-red-600 transition-colors"
+            onClick={() => handleNavigation("/logout")}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             <span className="font-medium">Logout</span>
           </div>
