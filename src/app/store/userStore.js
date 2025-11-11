@@ -12,7 +12,7 @@ const useUserStore = create(
     }),
     {
       name: "user-storage",
-      storage: createJSONStorage(() => localStorage), // корректно для Next.js
+      storage: createJSONStorage(() => localStorage),
       // partialize: (state) => ({ user: state.user }), // если нужно хранить не всё
     }
   )

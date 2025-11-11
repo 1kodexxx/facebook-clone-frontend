@@ -9,23 +9,7 @@ import StorySection from "../story/StorySection";
 export default function Page() {
   const [isPostFormOpen, setIsPostFormOpen] = useState(false);
 
-  // === Посты с тестовым комментарием ===
-  const posts = [
-    {
-      _id: 1,
-      content: "Hello world 🌍 — testing post with comment",
-      mediaUrl:
-        "https://images.unsplash.com/photo-1760895986008-0a016173836c?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=774",
-      mediaType: "image",
-      comments: [
-        {
-          user: { username: "Sasha" },
-          text: "Nice picture!",
-          createdAt: "20-04-2024",
-        },
-      ],
-    },
-  ];
+  const { posts, handleLikePost } = usePostStore();
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">

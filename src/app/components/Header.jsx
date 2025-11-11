@@ -10,6 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { logout } from "@/service/auth.service";
+import useUserStore from "../store/userStore";
+
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
@@ -27,23 +30,35 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import useSidebarStore from "../store/sidebarStore";
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const { toggleSidebar } = useSidebarStore();
+  const { toggleSidebar } = useSidebarStore(); // ← вызвать хук
   const router = useRouter();
 
-  const handleNavigation = (path) => {
-    router.push(path);
+  const { user, clearUser } = useUserStore(); // ← ВЫЗВАТЬ store-хук
+
+  const handleNavigation = (path) => router.push(path);
+
+  const handleLogout = async () => {
+    try {
+      const res = await logout(); // ← получить ответ
+      clearUser();
+      router.push("/user-login"); // ← логичнее на логин
+      toast.success(res?.message || "Logged out successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to log out");
+    }
   };
 
-  const handleLogout = () => {
-    // Фейковый logout
-    localStorage.removeItem("user");
-    router.push("/");
-  };
+  const userPlaceholder = user?.username
+    ?.split(" ")
+    .map((name) => name[0])
+    .join("");
 
   return (
     <>
@@ -93,7 +108,7 @@ const Header = () => {
                             <AvatarFallback>D</AvatarFallback>
                           </Avatar>
                           <span className="text-gray-700 dark:text-gray-200">
-                            Sasha Pushkin
+                            {user?.username}
                           </span>
                         </div>
                       </div>
@@ -164,10 +179,14 @@ const Header = () => {
                   className="relative h-9 w-9 rounded-full"
                 >
                   <Avatar>
-                    <AvatarImage />
-                    <AvatarFallback className="bg-gray-300 dark:bg-gray-600">
-                      D
-                    </AvatarFallback>
+                    {user?.profilePicture ? (
+                      <AvatarImage
+                        src={user?.profilePicture}
+                        alt={user?.username}
+                      />
+                    ) : (
+                      <AvatarFallback>{userPlaceholder}</AvatarFallback>
+                    )}
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -179,12 +198,18 @@ const Header = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex items-center">
                     <Avatar className="h-8 w-8 mr-2">
-                      <AvatarImage />
-                      <AvatarFallback>D</AvatarFallback>
+                      {user?.profilePicture ? (
+                        <AvatarImage
+                          src={user?.profilePicture}
+                          alt={user?.username}
+                        />
+                      ) : (
+                        <AvatarFallback>{userPlaceholder}</AvatarFallback>
+                      )}
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium leading-none dark:text-gray-100">
-                        Sasha Pushkin
+                        {user?.username}
                       </p>
                       <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                         pvntheraxxx@gmail.com

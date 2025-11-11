@@ -7,8 +7,8 @@
       "@styles/*": ["src/styles/*"],
       "@lib/*": ["src/lib/*"],
       "@ui/*": ["src/components/ui/*"],
-      "@store/*": ["src/store/*"], // ← добавили
-      "@service/*": ["src/service/*"] // ← добавили
+      "@store/*": ["src/store/*"],
+      "@service/*": ["src/service/*"]
     }
   }
 }

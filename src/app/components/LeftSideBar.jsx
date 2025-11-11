@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import useSidebarStore from "../store/sidebarStore";
+import useUserStore from "../store/userStore";
 
 const LeftSideBar = () => {
   const { isSidebarOpen, toggleSidebar } = useSidebarStore();
@@ -22,6 +23,12 @@ const LeftSideBar = () => {
     router.push(path);
     toggleSidebar(); // закрыть меню на мобильных после перехода
   };
+  const { user } = useUserStore(); // ← ВЫЗВАТЬ store-хук
+
+  const userPlaceholder = user?.username
+    ?.split(" ")
+    .map((name) => name[0])
+    .join("");
 
   return (
     <aside
@@ -39,13 +46,14 @@ const LeftSideBar = () => {
             onClick={() => handleNavigation("/")}
           >
             <Avatar className="h-10 w-10">
-              <AvatarImage />
-              <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
-                D
-              </AvatarFallback>
+              {user?.profilePicture ? (
+                <AvatarImage src={user?.profilePicture} alt={user?.username} />
+              ) : (
+                <AvatarFallback>{userPlaceholder}</AvatarFallback>
+              )}
             </Avatar>
             <span className="font-semibold text-[15px] leading-none text-gray-900 dark:text-white">
-              Sasha Pushkin
+              {user?.username}
             </span>
           </div>
 
@@ -74,13 +82,14 @@ const LeftSideBar = () => {
       <div className="pt-4 border-t border-border/40">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-9 w-9">
-            <AvatarImage />
-            <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
-              D
-            </AvatarFallback>
+            {user?.profilePicture ? (
+              <AvatarImage src={user?.profilePicture} alt={user?.username} />
+            ) : (
+              <AvatarFallback>{userPlaceholder}</AvatarFallback>
+            )}
           </Avatar>
           <span className="font-semibold text-[15px] leading-none text-gray-900 dark:text-white">
-            Sasha Pushkin
+            {user?.username}
           </span>
         </div>
 
