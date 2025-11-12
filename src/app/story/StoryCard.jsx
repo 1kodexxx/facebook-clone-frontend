@@ -1,4 +1,5 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,63 +11,73 @@ import ShowStoryPreview from "./ShowStoryPreview";
 
 const StoryCard = ({ isAddStory, story }) => {
   const { user } = userStore();
+  const { handleCreateStory } = usePostStore();
+
   const [filePreview, setFilePreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileType, setFileType] = useState("");
   const [loading, setLoading] = useState(false);
-  const { handleCreateStory } = usePostStore();
   const [showPreview, setShowPreview] = useState(false);
   const [isNewStory, setIsNewStory] = useState(false);
 
   const fileInputRef = useRef(null);
 
-  const userPlaceholder = story?.user?.username
-    ?.split(" ")
-    .map((name) => name[0])
-    .join("");
+  const userPlaceholder =
+    ((isAddStory ? user?.username : story?.user?.username) || "")
+      .split(" ")
+      .map((name) => name[0])
+      .join("") || "U";
 
-  const handleFileChnage = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file),
-        setFileType(file.type.startsWith("video") ? "video" : "image");
-      setFilePreview(URL.createObjectURL(file));
-      setIsNewStory(true);
-      setShowPreview(true);
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // позволяем выбрать тот же файл снова
+    if (!file) return;
+
+    const type = file.type.startsWith("video") ? "video" : "image";
+    const url = URL.createObjectURL(file);
+
+    setSelectedFile(file);
+    setFileType(type);
+    setFilePreview(url);
+    setIsNewStory(true);
+    setShowPreview(true);
+  };
+
+  const resetStoryState = () => {
+    if (
+      filePreview &&
+      typeof filePreview === "string" &&
+      filePreview.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(filePreview);
     }
-    e.target.value = "";
+    setShowPreview(false);
+    setSelectedFile(null);
+    setFilePreview(null);
+    setFileType("");
+    setIsNewStory(false);
+    setLoading(false);
   };
 
   const handleCreateStoryPost = async () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      if (selectedFile) {
-        formData.append("media", selectedFile);
-      }
+      if (selectedFile) formData.append("media", selectedFile);
       await handleCreateStory(formData);
       resetStoryState();
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       setLoading(false);
     }
   };
 
-  const handleClosePreview = () => {
-    resetStoryState();
-  };
-
-  const resetStoryState = () => {
-    setShowPreview(false);
-    setSelectedFile(null);
-    setFilePreview(null);
-    setFileType(null);
-    setIsNewStory(false);
-  };
+  const handleClosePreview = () => resetStoryState();
 
   const handleStoryClick = () => {
-    setFilePreview(story?.mediaUrl);
-    setFileType(story?.mediaType);
+    if (!story) return;
+    setFilePreview(story.mediaUrl);
+    setFileType(story.mediaType);
     setIsNewStory(false);
     setShowPreview(true);
   };
@@ -84,12 +95,12 @@ const StoryCard = ({ isAddStory, story }) => {
                 <Avatar className="w-full h-full rounded-none">
                   {user?.profilePicture ? (
                     <AvatarImage
-                      src={user?.profilePicture}
-                      alt={user?.username}
+                      src={user.profilePicture}
+                      alt={user?.username || "you"}
                       className="object-cover"
                     />
                   ) : (
-                    <p className="w-full h-full flex justify-center items-center text-4xl">
+                    <p className="w-full h-full grid place-items-center text-4xl">
                       {userPlaceholder}
                     </p>
                   )}
@@ -97,10 +108,15 @@ const StoryCard = ({ isAddStory, story }) => {
               </div>
               <div className="h-1/4 w-full bg-white dark:bg-gray-800 flex flex-col items-center justify-center">
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
-                  className="p-0 h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 "
-                  onClick={() => fileInputRef.current.click()}
+                  className="p-0 h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  aria-label="Add story"
                 >
                   <Plus className="h-5 w-5 text-white" />
                 </Button>
@@ -111,7 +127,7 @@ const StoryCard = ({ isAddStory, story }) => {
                 accept="image/*,video/*"
                 className="hidden"
                 ref={fileInputRef}
-                onChange={handleFileChnage}
+                onChange={handleFileChange}
               />
             </div>
           ) : (
@@ -120,30 +136,34 @@ const StoryCard = ({ isAddStory, story }) => {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={story?.mediaUrl}
-                  alt={story?.user?.username}
+                  alt={story?.user?.username || "story"}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <video
                   src={story?.mediaUrl}
-                  alt={story?.user?.username}
                   className="w-full h-full object-cover"
+                  controls={false}
+                  muted
+                  playsInline
                 />
               )}
-              <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full ">
+
+              <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full">
                 <Avatar className="w-8 h-8">
                   {story?.user?.profilePicture ? (
                     <AvatarImage
-                      src={story?.user?.profilePicture}
-                      alt={story?.user?.username}
+                      src={story.user.profilePicture}
+                      alt={story?.user?.username || "author"}
                     />
                   ) : (
                     <AvatarFallback>{userPlaceholder}</AvatarFallback>
                   )}
                 </Avatar>
               </div>
+
               <div className="absolute bottom-2 left-2 right-2">
-                <p className="text-white text-xs font-semibold truncate">
+                <p className="text-white text-xs font-semibold truncate drop-shadow">
                   {story?.user?.username}
                 </p>
               </div>
@@ -151,6 +171,7 @@ const StoryCard = ({ isAddStory, story }) => {
           )}
         </CardContent>
       </Card>
+
       {showPreview && (
         <ShowStoryPreview
           file={filePreview}
