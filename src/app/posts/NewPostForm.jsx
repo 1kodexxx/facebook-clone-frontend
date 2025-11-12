@@ -16,58 +16,113 @@ import { Textarea } from "@/components/ui/textarea";
 import { AnimatePresence, motion } from "framer-motion";
 import { ImageIcon, Laugh, Plus, Video, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePostStore } from "../store/usePostStore";
 import useUserStore from "../store/userStore";
 
 const Picker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
+const MAX_IMAGE_MB = 8;
+const MAX_VIDEO_MB = 64;
+
 const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
+  const { user } = useUserStore();
+  const { handleCreatePost } = usePostStore();
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [postContent, setPostContent] = useState("");
-  const { user } = useUserStore();
-  const [filePreview, setFilePreview] = useState(null); // string (blob URL)
-  const [selectedFile, setSelectedFile] = useState(null); // File
+  const [filePreview, setFilePreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { handleCreatePost } = usePostStore();
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [error, setError] = useState("");
+
   const fileInputRef = useRef(null);
 
-  const userPlaceholder =
-    user?.username
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("") || "U";
+  const userPlaceholder = useMemo(
+    () =>
+      user?.username
+        ?.split(" ")
+        .map((n) => n[0])
+        .join("") || "U",
+    [user?.username]
+  );
+
+  const isImage = selectedFile?.type?.startsWith("image") ?? false;
+  const isVideo = selectedFile?.type?.startsWith("video") ?? false;
+
+  const openFilePicker = () => fileInputRef.current?.click();
 
   const clearFile = () => {
-    if (filePreview) URL.revokeObjectURL(filePreview);
+    if (filePreview?.startsWith?.("blob:")) URL.revokeObjectURL(filePreview);
     setSelectedFile(null);
     setFilePreview(null);
     setShowImageUpload(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   useEffect(() => {
     if (!isPostFormOpen) {
       setShowEmojiPicker(false);
       clearFile();
+      setPostContent("");
+      setError("");
     }
   }, [isPostFormOpen]); // eslint-disable-line
 
-  const handleEmojiClick = (emojiData) => {
-    setPostContent((prev) => prev + (emojiData?.emoji || ""));
+  const validateFile = (file) => {
+    if (!file) return "No file";
+    const mb = file.size / (1024 * 1024);
+    if (file.type.startsWith("image") && mb > MAX_IMAGE_MB)
+      return `Image is too large (>${MAX_IMAGE_MB}MB)`;
+    if (file.type.startsWith("video") && mb > MAX_VIDEO_MB)
+      return `Video is too large (>${MAX_VIDEO_MB}MB)`;
+    if (!/^image|video\//.test(file.type)) return "Unsupported file type";
+    return "";
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-
-    if (filePreview) URL.revokeObjectURL(filePreview);
-
-    setSelectedFile(file);
+  const attachFile = (file) => {
+    const err = validateFile(file);
+    if (err) {
+      setError(err);
+      return;
+    }
+    setError("");
+    if (filePreview?.startsWith?.("blob:")) URL.revokeObjectURL(filePreview);
     const url = URL.createObjectURL(file);
+    setSelectedFile(file);
     setFilePreview(url);
     setShowImageUpload(true);
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    attachFile(file);
+  };
+
+  // DnD + paste
+  const onDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) attachFile(file);
+  };
+
+  const onPaste = (e) => {
+    const item = [...(e.clipboardData?.items || [])].find((i) =>
+      /^image\//.test(i.type)
+    );
+    if (item) {
+      const file = item.getAsFile();
+      if (file) attachFile(file);
+    }
+  };
+
+  const handleEmojiClick = (emojiData) =>
+    setPostContent((prev) => prev + (emojiData?.emoji || ""));
+
+  const canPost = !loading && (postContent.trim() || selectedFile);
 
   const handlePost = async () => {
     try {
@@ -75,33 +130,23 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
       const formData = new FormData();
       formData.append("content", postContent.trim());
       if (selectedFile) formData.append("media", selectedFile);
-
       await handleCreatePost(formData);
-
-      setPostContent("");
-      clearFile();
       setIsPostFormOpen(false);
+      clearFile();
+      setPostContent("");
     } catch (err) {
       console.error(err);
+      setError("Failed to publish the post.");
     } finally {
       setLoading(false);
     }
   };
 
-  const isImage = selectedFile ? selectedFile.type.startsWith("image") : false;
-  const isVideo = selectedFile ? selectedFile.type.startsWith("video") : false;
-
-  const openFilePicker = () =>
-    fileInputRef.current && fileInputRef.current.click();
-
-  const canPost =
-    !loading && (postContent.trim().length > 0 || Boolean(selectedFile));
-
   return (
     <Card>
-      <CardContent className="p-4">
-        <div className="flex space-x-4">
-          <Avatar className="h-8 w-8">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex space-x-3 sm:space-x-4">
+          <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
             {user?.profilePicture ? (
               <AvatarImage
                 src={user.profilePicture}
@@ -118,39 +163,50 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                 <Input
                   placeholder={`What's on your mind? ${user?.username || ""}`}
                   readOnly
-                  className="cursor-pointer rounded-full h-12 dark:bg-[rgb(58,59,60)] placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  className="cursor-pointer rounded-full h-11 sm:h-12 dark:bg-[rgb(58,59,60)] placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 />
+
                 <Separator className="my-2 dark:bg-slate-400" />
-                <div className="flex justify-between">
+
+                {/* Адаптивный ряд действий. На мобиле — только иконки. */}
+                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                   <Button
                     variant="ghost"
-                    className="flex items-center justify-center"
                     onClick={openFilePicker}
+                    className="flex-1 min-w-0 justify-center h-9 px-2"
                   >
-                    <ImageIcon className="h-5 w-5 mr-2 text-green-500" />
-                    <span className="dark:text-white">Photo</span>
+                    <ImageIcon className="h-5 w-5 sm:mr-2" />
+                    <span className="hidden sm:inline dark:text-white">
+                      Photo
+                    </span>
                   </Button>
+
                   <Button
                     variant="ghost"
-                    className="flex items-center justify-center"
                     onClick={openFilePicker}
+                    className="flex-1 min-w-0 justify-center h-9 px-2"
                   >
-                    <Video className="h-5 w-5 mr-2 text-red-500" />
-                    <span className="dark:text-white">Video</span>
+                    <Video className="h-5 w-5 sm:mr-2" />
+                    <span className="hidden sm:inline dark:text-white">
+                      Video
+                    </span>
                   </Button>
+
                   <Button
                     variant="ghost"
-                    className="flex items-center justify-center"
-                    onClick={() => setIsPostFormOpen(true)}
+                    onClick={() => setShowEmojiPicker(true)}
+                    className="flex-1 min-w-0 justify-center h-9 px-2"
                   >
-                    <Laugh className="h-5 w-5 mr-2 text-orange-500" />
-                    <span className="dark:text-white">Feelings</span>
+                    <Laugh className="h-5 w-5 sm:mr-2" />
+                    <span className="hidden sm:inline dark:text-white">
+                      Feelings
+                    </span>
                   </Button>
                 </div>
               </div>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[525px] max-h-[80vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[525px] w-[92vw] sm:w-auto max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-center">Create a post</DialogTitle>
               </DialogHeader>
@@ -175,11 +231,13 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
 
               <Textarea
                 placeholder={`What's on your mind? ${user?.username || ""}`}
-                className="min-h-[100px] text-lg"
+                className="min-h-[92px] sm:min-h-[110px] text-base sm:text-lg"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
+                onPaste={onPaste}
               />
 
+              {/* Preview / Drop zone */}
               <AnimatePresence>
                 {(showImageUpload || filePreview) && (
                   <motion.div
@@ -187,7 +245,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="relative mt-4 border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center"
+                    className="relative mt-4 border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 flex flex-col items-center justify-center"
                   >
                     <Button
                       type="button"
@@ -195,6 +253,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                       size="icon"
                       className="absolute top-2 right-2"
                       onClick={clearFile}
+                      aria-label="Remove file"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -207,7 +266,6 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                         className="max-h-64 rounded-md object-contain"
                       />
                     )}
-
                     {filePreview && isVideo && (
                       <video
                         src={filePreview}
@@ -223,12 +281,14 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative mt-4 border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer"
+                  className="relative mt-4 border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer"
                   onClick={openFilePicker}
+                  onDrop={onDrop}
+                  onDragOver={(e) => e.preventDefault()}
                 >
                   <Plus className="h-12 w-12 text-gray-400 mb-2" />
                   <p className="text-center text-gray-500">
-                    Add Photos / Videos
+                    Add Photos / Videos (drop or paste)
                   </p>
                   <input
                     ref={fileInputRef}
@@ -240,16 +300,18 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                 </motion.div>
               )}
 
-              <div className="bg-gray-200 dark:bg-muted p-4 rounded-lg mt-4">
+              {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+
+              <div className="bg-gray-200 dark:bg-muted p-3 sm:p-4 rounded-lg mt-4">
                 <p className="font-semibold mb-2">Add to your post</p>
-                <div className="flex space-x-2">
+                <div className="flex gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
                     onClick={openFilePicker}
                   >
-                    <ImageIcon className="h-4 w-4 text-green-500" />
+                    <ImageIcon className="h-4 w-4" />
                   </Button>
                   <Button
                     type="button"
@@ -257,7 +319,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                     size="icon"
                     onClick={openFilePicker}
                   >
-                    <Video className="h-4 w-4 text-red-500" />
+                    <Video className="h-4 w-4" />
                   </Button>
                   <Button
                     type="button"
@@ -265,7 +327,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                     size="icon"
                     onClick={() => setShowEmojiPicker((v) => !v)}
                   >
-                    <Laugh className="h-4 w-4 text-orange-500" />
+                    <Laugh className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -284,10 +346,11 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                       size="icon"
                       className="absolute top-2 right-2 z-10"
                       onClick={() => setShowEmojiPicker(false)}
+                      aria-label="Close emoji picker"
                     >
                       <X className="h-4 w-4" />
                     </Button>
-                    <Picker onEmojiClick={handleEmojiClick} />
+                    <Picker onEmojiClick={(_, e) => handleEmojiClick(e)} />
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -1,4 +1,3 @@
-// === src/app/posts/PostCard.jsx ===
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,25 +31,23 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
   const [showComments, setShowComments] = useState(false);
 
   const userName = post?.user?.username || "Unknown user";
-
-  const userPlaceholder = useMemo(() => {
-    if (!userName) return "U";
-    return userName
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
-  }, [userName]);
+  const userPlaceholder = useMemo(
+    () =>
+      userName
+        ? userName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()
+        : "U",
+    [userName]
+  );
 
   const createdAt = useMemo(() => {
     if (!post?.createdAt) return "";
-    try {
-      const d = new Date(post.createdAt);
-      return d.toLocaleString();
-    } catch {
-      return String(post.createdAt);
-    }
+    const d = new Date(post.createdAt);
+    return isNaN(+d) ? String(post.createdAt) : d.toLocaleString();
   }, [post?.createdAt]);
 
   const likeCount =
@@ -67,62 +64,52 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
   const shareCount = typeof post?.shareCount === "number" ? post.shareCount : 0;
 
   const generateSharedLink = () => {
-    // берём origin из браузера, иначе из ENV, иначе http://localhost:3000
     const origin =
       (typeof window !== "undefined" && window.location.origin) ||
       process.env.NEXT_PUBLIC_FRONTEND_ORIGIN ||
       "http://localhost:3000";
-    return `${origin}/${post?._id}`;
+    return `${origin}/${post?._id ?? post?.id ?? ""}`;
   };
 
-  const handleShare = (platform) => {
+  const webShare = async (url) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ url });
+        return true;
+      }
+    } catch {
+      /* ignore */
+    }
+    return false;
+  };
+
+  const handleShare = async (platform) => {
     const url = generateSharedLink();
+    const u = encodeURIComponent(url);
 
-    switch (platform) {
-      case "facebook":
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            url
-          )}`,
-          "_blank"
-        );
-        break;
-      case "twitter":
-        window.open(
-          `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`,
-          "_blank"
-        );
-        break;
-      case "linkedin":
-        window.open(
-          `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-            url
-          )}`,
-          "_blank"
-        );
-        break;
-      case "copy":
-        navigator.clipboard.writeText(url);
-        alert("✅ Link copied to clipboard!");
-        setIsShareDialogOpen(false);
-        break;
-      default:
-        break;
+    if (platform === "native" && (await webShare(url))) {
+      onShare?.(post?._id, "native");
+      setIsShareDialogOpen(false);
+      return;
     }
 
-    // опционально уведомляем родителя
-    onShare && onShare(post?._id, platform);
-  };
+    let shareUrl = null;
+    if (platform === "facebook")
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+    if (platform === "twitter")
+      shareUrl = `https://twitter.com/intent/tweet?url=${u}`;
+    if (platform === "linkedin")
+      shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;
 
-  const handleLike = () => {
-    onLike && onLike(post?._id);
-  };
-
-  const handleCommentToggle = () => {
-    setShowComments((v) => !v);
-    if (!showComments) {
-      onComment && onComment(post?._id);
+    if (platform === "copy") {
+      await navigator.clipboard?.writeText(url);
+      setIsShareDialogOpen(false);
+      onShare?.(post?._id, "copy");
+      return;
     }
+
+    if (shareUrl) window.open(shareUrl, "_blank", "noopener,noreferrer");
+    onShare?.(post?._id, platform);
   };
 
   return (
@@ -133,10 +120,10 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
       transition={{ duration: 0.5 }}
     >
       <Card className="dark:bg-[rgb(36,37,38)] bg-white border border-gray-200 dark:border-gray-700">
-        <CardContent className="p-6">
-          {/* Верхняя часть */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3 cursor-pointer">
+        <CardContent className="p-3 sm:p-4 md:p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center space-x-3">
               <Avatar>
                 {post?.user?.profilePicture ? (
                   <AvatarImage src={post.user.profilePicture} alt={userName} />
@@ -155,47 +142,55 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
                 )}
               </div>
             </div>
-            <Button variant="ghost" className="dark:hover:bg-gray-600">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="dark:hover:bg-gray-600"
+            >
               <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-200" />
             </Button>
           </div>
 
-          {/* Контент */}
+          {/* Text */}
           {post?.content && (
-            <p className="mb-4 text-gray-900 dark:text-gray-200">
+            <p className="mb-3 sm:mb-4 text-gray-900 dark:text-gray-200 text-sm sm:text-base">
               {post.content}
             </p>
           )}
 
+          {/* Media */}
           {post?.mediaUrl && post.mediaType === "image" && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={post.mediaUrl}
               alt="post image"
-              className="w-full h-auto rounded-lg mb-4"
+              className="w-full h-auto rounded-lg mb-3 sm:mb-4 max-h-[70vh] object-contain"
             />
           )}
 
           {post?.mediaUrl && post.mediaType === "video" && (
-            <video controls className="w-full h-[500px] rounded-lg mb-4">
+            <video
+              controls
+              className="w-full rounded-lg mb-3 sm:mb-4 h-[56vw] sm:h-[360px] md:h-[420px] lg:h-[500px]"
+            >
               <source src={post.mediaUrl} type="video/mp4" />
               Your browser does not support the video tag
             </video>
           )}
 
-          {/* Статистика */}
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400 cursor-default">
+          {/* Stats */}
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
               {likeCount} {likeCount === 1 ? "like" : "likes"}
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-2 text-xs sm:text-sm">
               <span
-                className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
-                onClick={handleCommentToggle}
+                className="text-gray-600 dark:text-gray-400 cursor-pointer"
+                onClick={() => setShowComments((v) => !v)}
               >
                 {commentsCount} {commentsCount === 1 ? "comment" : "comments"}
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400 cursor-default">
+              <span className="text-gray-600 dark:text-gray-400">
                 {shareCount} {shareCount === 1 ? "share" : "shares"}
               </span>
             </div>
@@ -203,27 +198,26 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
 
           <Separator className="mb-2 dark:bg-gray-500" />
 
-          {/* Кнопки действий */}
-          <div className="flex justify-between mb-2">
+          {/* Actions */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2">
             <Button
               variant="ghost"
-              className="flex-1 dark:hover:bg-gray-700"
-              onClick={handleLike}
+              className="w-full dark:hover:bg-gray-700 py-2 sm:py-2.5"
+              onClick={() => onLike?.(post?._id)}
             >
-              <ThumbsUp className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
+              <ThumbsUp className="mr-1.5 sm:mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
               {isLiked ? "Liked" : "Like"}
             </Button>
 
             <Button
               variant="ghost"
-              className="flex-1 dark:hover:bg-gray-700"
-              onClick={handleCommentToggle}
+              className="w-full dark:hover:bg-gray-700 py-2 sm:py-2.5"
+              onClick={() => setShowComments((v) => !v)}
             >
-              <MessageCircle className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
+              <MessageCircle className="mr-1.5 sm:mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
               Comment
             </Button>
 
-            {/* === Share Dialog === */}
             <Dialog
               open={isShareDialogOpen}
               onOpenChange={setIsShareDialogOpen}
@@ -231,14 +225,14 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex-1 dark:hover:bg-gray-700"
+                  className="w-full dark:hover:bg-gray-700 py-2 sm:py-2.5"
                 >
-                  <Share2 className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
+                  <Share2 className="mr-1.5 sm:mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
                   Share
                 </Button>
               </DialogTrigger>
 
-              <DialogContent className="sm:max-w-[400px] p-6 rounded-xl dark:bg-[rgb(36,37,38)] bg-white border border-gray-2 00 dark:border-gray-700 text-gray-900 dark:text-gray-100">
+              <DialogContent className="sm:max-w-[400px] w-[92vw] sm:w-auto p-4 sm:p-6 rounded-xl dark:bg-[rgb(36,37,38)] bg-white border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
                 <DialogHeader>
                   <DialogTitle className="text-lg font-semibold mb-1">
                     Share This Post
@@ -248,38 +242,37 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
                   </DialogDescription>
                 </DialogHeader>
 
-                {/* Кнопки Share */}
                 <div className="flex flex-col space-y-3">
                   <Button
-                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2"
+                    onClick={() => handleShare("native")}
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Share via device
+                  </Button>
+                  <Button
+                    className="w-full flex items-center justify-center gap-2"
                     onClick={() => handleShare("facebook")}
                   >
-                    <Facebook className="h-4 w-4" />
-                    Share on Facebook
+                    <Facebook className="h-4 w-4" /> Facebook
                   </Button>
-
                   <Button
-                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2"
                     onClick={() => handleShare("twitter")}
                   >
-                    <Twitter className="h-4 w-4" />
-                    Share on Twitter
+                    <Twitter className="h-4 w-4" /> Twitter
                   </Button>
-
                   <Button
-                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2"
                     onClick={() => handleShare("linkedin")}
                   >
-                    <Linkedin className="h-4 w-4" />
-                    Share on Linkedin
+                    <Linkedin className="h-4 w-4" /> LinkedIn
                   </Button>
-
                   <Button
-                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white font-semibold border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2"
                     onClick={() => handleShare("copy")}
                   >
-                    <LinkIcon className="h-4 w-4" />
-                    Copy Link
+                    <LinkIcon className="h-4 w-4" /> Copy Link
                   </Button>
                 </div>
               </DialogContent>
@@ -288,7 +281,7 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
 
           <Separator className="mb-2 dark:bg-gray-500" />
 
-          {/* Комментарии */}
+          {/* Comments */}
           <AnimatePresence>
             {showComments && (
               <motion.div

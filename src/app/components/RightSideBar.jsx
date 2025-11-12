@@ -1,4 +1,5 @@
 "use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { ExternalLink, TrendingUp } from "lucide-react";
@@ -52,32 +53,33 @@ const RightSideBar = () => {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4"
+      className="hidden lg:block lg:w-64 xl:w-80"
     >
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center text-lg font-semibold text-foreground">
-            <TrendingUp className="mr-2 h-5 w-5 text-primary" />
-            Popular Sponsors
-          </CardTitle>
-        </CardHeader>
+      <div className="sticky top-20 space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg font-semibold text-foreground">
+              <TrendingUp className="mr-2 h-5 w-5 text-primary" />
+              Popular Sponsors
+            </CardTitle>
+          </CardHeader>
 
-        <CardContent>
-          <ul className="space-y-4">
-            {displaySponsors.map((sponsor, index) => (
-              <motion.li
-                key={sponsor.name}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-              >
-                <img
-                  src={sponsor.image}
-                  alt={sponsor.name}
-                  className="w-full h-40 object-contain rounded-md mb-2"
-                />
-                <div className="flex-1">
+          <CardContent>
+            <ul className="space-y-4">
+              {displaySponsors.map((sponsor, index) => (
+                <motion.li
+                  key={sponsor.name}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.06 }}
+                  className="flex flex-col p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={sponsor.image}
+                    alt={sponsor.name}
+                    className="w-full aspect-[16/9] object-contain rounded-md mb-2 bg-white dark:bg-transparent"
+                  />
                   <h3 className="text-md font-semibold dark:text-gray-100">
                     {sponsor.name}
                   </h3>
@@ -87,26 +89,26 @@ const RightSideBar = () => {
                   <a
                     href={sponsor.website}
                     target="_blank"
-                    className="text-primary text-sm flex item-center mt-1 hover:underline"
+                    rel="noreferrer"
+                    className="text-primary text-sm inline-flex items-center mt-1 hover:underline"
                   >
                     Visit Website <ExternalLink className="ml-1 h-4" />
                   </a>
-                </div>
-              </motion.li>
-            ))}
-          </ul>
+                </motion.li>
+              ))}
+            </ul>
 
-          {/* Toggle button */}
-          {sponsors.length > 3 && (
-            <button
-              onClick={() => setShowAllSponsors(!showAllSponsors)}
-              className="mt-4 w-full text-center text-sm text-blue-600 hover:underline"
-            >
-              {showAllSponsors ? "Show Less" : "Show More"}
-            </button>
-          )}
-        </CardContent>
-      </Card>
+            {sponsors.length > 3 && (
+              <button
+                onClick={() => setShowAllSponsors((v) => !v)}
+                className="mt-4 w-full text-center text-sm text-blue-600 hover:underline"
+              >
+                {showAllSponsors ? "Show Less" : "Show More"}
+              </button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </motion.aside>
   );
 };

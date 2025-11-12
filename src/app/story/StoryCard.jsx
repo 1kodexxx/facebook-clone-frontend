@@ -85,7 +85,15 @@ const StoryCard = ({ isAddStory, story }) => {
   return (
     <>
       <Card
-        className="w-40 h-60 relative overflow-hidden group cursor-pointer rounded-xl"
+        className="
+          relative overflow-hidden group cursor-pointer rounded-xl
+          w-32 h-48
+          xs:w-36 xs:h-52
+          sm:w-40 sm:h-60
+          md:w-44 md:h-64
+          lg:w-44 lg:h-64
+          flex-shrink-0
+        "
         onClick={isAddStory ? undefined : handleStoryClick}
       >
         <CardContent className="p-0 h-full">
@@ -100,7 +108,7 @@ const StoryCard = ({ isAddStory, story }) => {
                       className="object-cover"
                     />
                   ) : (
-                    <p className="w-full h-full grid place-items-center text-4xl">
+                    <p className="w-full h-full grid place-items-center text-3xl sm:text-4xl">
                       {userPlaceholder}
                     </p>
                   )}
@@ -120,7 +128,9 @@ const StoryCard = ({ isAddStory, story }) => {
                 >
                   <Plus className="h-5 w-5 text-white" />
                 </Button>
-                <p className="text-xs font-semibold mt-1">Create Story</p>
+                <p className="text-[11px] sm:text-xs font-semibold mt-1">
+                  Create Story
+                </p>
               </div>
               <input
                 type="file"
@@ -138,6 +148,7 @@ const StoryCard = ({ isAddStory, story }) => {
                   src={story?.mediaUrl}
                   alt={story?.user?.username || "story"}
                   className="w-full h-full object-cover"
+                  draggable={false}
                 />
               ) : (
                 <video
@@ -150,7 +161,7 @@ const StoryCard = ({ isAddStory, story }) => {
               )}
 
               <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full">
-                <Avatar className="w-8 h-8">
+                <Avatar className="w-7 h-7 sm:w-8 sm:h-8">
                   {story?.user?.profilePicture ? (
                     <AvatarImage
                       src={story.user.profilePicture}
@@ -163,7 +174,7 @@ const StoryCard = ({ isAddStory, story }) => {
               </div>
 
               <div className="absolute bottom-2 left-2 right-2">
-                <p className="text-white text-xs font-semibold truncate drop-shadow">
+                <p className="text-white text-[11px] sm:text-xs font-semibold truncate drop-shadow">
                   {story?.user?.username}
                 </p>
               </div>
