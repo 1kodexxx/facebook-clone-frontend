@@ -1,3 +1,4 @@
+// === src/app/posts/PostCard.jsx ===
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,15 +24,55 @@ import {
   ThumbsUp,
   Twitter,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import PostComments from "./PostComments";
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
+  const userName = post?.user?.username || "Unknown user";
+
+  const userPlaceholder = useMemo(() => {
+    if (!userName) return "U";
+    return userName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  }, [userName]);
+
+  const createdAt = useMemo(() => {
+    if (!post?.createdAt) return "";
+    try {
+      const d = new Date(post.createdAt);
+      return d.toLocaleString();
+    } catch {
+      return String(post.createdAt);
+    }
+  }, [post?.createdAt]);
+
+  const likeCount =
+    typeof post?.likeCount === "number"
+      ? post.likeCount
+      : Array.isArray(post?.likes)
+      ? post.likes.length
+      : 0;
+
+  const commentsCount = Array.isArray(post?.comments)
+    ? post.comments.length
+    : post?.commentCount || 0;
+
+  const shareCount = typeof post?.shareCount === "number" ? post.shareCount : 0;
+
   const generateSharedLink = () => {
-    return `https://localhost:3000/${post?._id}`;
+    // берём origin из браузера, иначе из ENV, иначе http://localhost:3000
+    const origin =
+      (typeof window !== "undefined" && window.location.origin) ||
+      process.env.NEXT_PUBLIC_FRONTEND_ORIGIN ||
+      "http://localhost:3000";
+    return `${origin}/${post?._id}`;
   };
 
   const handleShare = (platform) => {
@@ -40,16 +81,23 @@ const PostCard = ({ post }) => {
     switch (platform) {
       case "facebook":
         window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+            url
+          )}`,
           "_blank"
         );
         break;
       case "twitter":
-        window.open(`https://twitter.com/intent/tweet?url=${url}`, "_blank");
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`,
+          "_blank"
+        );
         break;
       case "linkedin":
         window.open(
-          `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+          `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+            url
+          )}`,
           "_blank"
         );
         break;
@@ -60,6 +108,20 @@ const PostCard = ({ post }) => {
         break;
       default:
         break;
+    }
+
+    // опционально уведомляем родителя
+    onShare && onShare(post?._id, platform);
+  };
+
+  const handleLike = () => {
+    onLike && onLike(post?._id);
+  };
+
+  const handleCommentToggle = () => {
+    setShowComments((v) => !v);
+    if (!showComments) {
+      onComment && onComment(post?._id);
     }
   };
 
@@ -76,18 +138,21 @@ const PostCard = ({ post }) => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3 cursor-pointer">
               <Avatar>
-                <AvatarImage />
-                <AvatarFallback className="bg-gray-300 dark:bg-gray-600 text-black dark:text-white">
-                  D
-                </AvatarFallback>
+                {post?.user?.profilePicture ? (
+                  <AvatarImage src={post.user.profilePicture} alt={userName} />
+                ) : (
+                  <AvatarFallback>{userPlaceholder}</AvatarFallback>
+                )}
               </Avatar>
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">
-                  Sasha Pushkin
+                  {userName}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  20-05-2024
-                </p>
+                {!!createdAt && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {createdAt}
+                  </p>
+                )}
               </div>
             </div>
             <Button variant="ghost" className="dark:hover:bg-gray-600">
@@ -96,14 +161,16 @@ const PostCard = ({ post }) => {
           </div>
 
           {/* Контент */}
-          <p className="mb-4 text-gray-900 dark:text-gray-200">
-            {post?.content}
-          </p>
+          {post?.content && (
+            <p className="mb-4 text-gray-900 dark:text-gray-200">
+              {post.content}
+            </p>
+          )}
 
           {post?.mediaUrl && post.mediaType === "image" && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={post?.mediaUrl}
+              src={post.mediaUrl}
               alt="post image"
               className="w-full h-auto rounded-lg mb-4"
             />
@@ -111,25 +178,25 @@ const PostCard = ({ post }) => {
 
           {post?.mediaUrl && post.mediaType === "video" && (
             <video controls className="w-full h-[500px] rounded-lg mb-4">
-              <source src={post?.mediaUrl} type="video/mp4" />
+              <source src={post.mediaUrl} type="video/mp4" />
               Your browser does not support the video tag
             </video>
           )}
 
           {/* Статистика */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
-              2 likes
+            <span className="text-sm text-gray-600 dark:text-gray-400 cursor-default">
+              {likeCount} {likeCount === 1 ? "like" : "likes"}
             </span>
             <div className="flex gap-2">
               <span
                 className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
-                onClick={() => setShowComments(!showComments)}
+                onClick={handleCommentToggle}
               >
-                3 comments
+                {commentsCount} {commentsCount === 1 ? "comment" : "comments"}
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
-                3 share
+              <span className="text-sm text-gray-600 dark:text-gray-400 cursor-default">
+                {shareCount} {shareCount === 1 ? "share" : "shares"}
               </span>
             </div>
           </div>
@@ -138,12 +205,21 @@ const PostCard = ({ post }) => {
 
           {/* Кнопки действий */}
           <div className="flex justify-between mb-2">
-            <Button variant="ghost" className="flex-1 dark:hover:bg-gray-700">
-              <ThumbsUp className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />{" "}
-              Like
+            <Button
+              variant="ghost"
+              className="flex-1 dark:hover:bg-gray-700"
+              onClick={handleLike}
+            >
+              <ThumbsUp className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
+              {isLiked ? "Liked" : "Like"}
             </Button>
-            <Button variant="ghost" className="flex-1 dark:hover:bg-gray-700">
-              <MessageCircle className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />{" "}
+
+            <Button
+              variant="ghost"
+              className="flex-1 dark:hover:bg-gray-700"
+              onClick={handleCommentToggle}
+            >
+              <MessageCircle className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
               Comment
             </Button>
 
@@ -157,12 +233,12 @@ const PostCard = ({ post }) => {
                   variant="ghost"
                   className="flex-1 dark:hover:bg-gray-700"
                 >
-                  <Share2 className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />{" "}
+                  <Share2 className="mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" />
                   Share
                 </Button>
               </DialogTrigger>
 
-              <DialogContent className="sm:max-w-[400px] p-6 rounded-xl dark:bg-[rgb(36,37,38)] bg-white border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
+              <DialogContent className="sm:max-w-[400px] p-6 rounded-xl dark:bg-[rgb(36,37,38)] bg-white border border-gray-2 00 dark:border-gray-700 text-gray-900 dark:text-gray-100">
                 <DialogHeader>
                   <DialogTitle className="text-lg font-semibold mb-1">
                     Share This Post
