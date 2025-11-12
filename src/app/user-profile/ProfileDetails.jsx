@@ -38,76 +38,80 @@ const ProfileDetails = ({ activeTab }) => {
     },
   ];
 
+  const IntroCard = (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      // на десктопе интро закрепляем, чтобы не прыгало при скролле
+      className="w-full lg:w-[32%] lg:sticky lg:top-24 lg:self-start"
+    >
+      <Card className="bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-gray-200 dark:border-neutral-700 shadow-sm">
+        <CardContent className="p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+            Intro
+          </h2>
+
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            This is a <span className="font-medium text-primary">1kodexxx</span>{" "}
+            software developer
+          </p>
+
+          <div className="space-y-2 mb-4 text-sm sm:text-base">
+            <div className="flex items-center text-gray-700 dark:text-gray-300">
+              <Home className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
+              <span>Live in Murmansk</span>
+            </div>
+
+            <div className="flex items-center text-gray-700 dark:text-gray-300">
+              <Heart className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
+              <span>Single</span>
+            </div>
+
+            <div className="flex items-center text-gray-700 dark:text-gray-300">
+              <MapPin className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
+              <span>From Up Murmansk</span>
+            </div>
+
+            <div className="flex items-center text-gray-700 dark:text-gray-300">
+              <Briefcase className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
+              <span>Work at 1kodexxx</span>
+            </div>
+
+            <div className="flex items-center text-gray-700 dark:text-gray-300">
+              <GraduationCap className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
+              <span>Studied at MGU</span>
+            </div>
+          </div>
+
+          <div className="flex items-center mb-4 text-gray-700 dark:text-gray-300">
+            <Rss className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
+            <span>Followed by 40 people</span>
+          </div>
+
+          <Button
+            className="w-full transition-all duration-200 hover:scale-[1.02]"
+            onClick={() => setIsSetEditBioModel(true)}
+          >
+            Edit Bio
+          </Button>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
   const tabContent = {
     posts: (
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* ==== POSTS COLUMN ==== */}
-        <div className="w-full lg:w-[70%] space-y-6">
+        <div className="w-full lg:w-[68%] space-y-4 lg:space-y-6">
           {userPosts.map((post) => (
             <PostsContent key={post._id} post={post} />
           ))}
         </div>
 
-        {/* ==== SIDEBAR (INTRO) ==== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full lg:w-[30%]"
-        >
-          <Card className="bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-gray-200 dark:border-neutral-700 shadow-sm">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
-                Intro
-              </h2>
-
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                This is a{" "}
-                <span className="font-medium text-primary">1kodexxx</span> soft
-                developer
-              </p>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-gray-700 dark:text-gray-300">
-                  <Home className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                  <span>Live in Murmansk</span>
-                </div>
-
-                <div className="flex items-center text-gray-700 dark:text-gray-300">
-                  <Heart className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                  <span>Single</span>
-                </div>
-
-                <div className="flex items-center text-gray-700 dark:text-gray-300">
-                  <MapPin className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                  <span>From Up Murmansk</span>
-                </div>
-
-                <div className="flex items-center text-gray-700 dark:text-gray-300">
-                  <Briefcase className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                  <span>Work at 1kodexxx</span>
-                </div>
-
-                <div className="flex items-center text-gray-700 dark:text-gray-300">
-                  <GraduationCap className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                  <span>Studied at MGU</span>
-                </div>
-              </div>
-
-              <div className="flex items-center mb-4 text-gray-700 dark:text-gray-300">
-                <Rss className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                <span>Followed by 40 people</span>
-              </div>
-
-              <Button
-                className="w-full transition-all duration-200 hover:scale-[1.02]"
-                onClick={() => setIsSetEditBioModel(true)}
-              >
-                Edit Bio
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* ==== SIDEBAR ==== */}
+        {IntroCard}
       </div>
     ),
 
@@ -116,47 +120,47 @@ const ProfileDetails = ({ activeTab }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="p-6 dark:bg-neutral-900/60 dark:border-neutral-700"
+        className="p-4 sm:p-6"
       >
         <Card className="bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-gray-200 dark:border-neutral-700 shadow-sm">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
               About
             </h2>
 
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               This is a{" "}
-              <span className="font-medium text-primary">1kodexxx</span> soft
-              developer
+              <span className="font-medium text-primary">1kodexxx</span>{" "}
+              software developer
             </p>
 
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-4 text-sm sm:text-base">
               <div className="flex items-center text-gray-700 dark:text-gray-300">
-                <Home className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
+                <Home className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
                 <span>Live in Murmansk</span>
               </div>
 
               <div className="flex items-center text-gray-700 dark:text-gray-300">
-                <Heart className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
+                <Heart className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
                 <span>Single</span>
               </div>
 
               <div className="flex items-center text-gray-700 dark:text-gray-300">
-                <MapPin className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
+                <MapPin className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
                 <span>+79113192341</span>
               </div>
               <div className="flex items-center text-gray-700 dark:text-gray-300">
-                <Mail className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
+                <Mail className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
                 <span>pvntheraxxx@gmail.com</span>
               </div>
               <div className="flex items-center text-gray-700 dark:text-gray-300">
-                <Cake className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
+                <Cake className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
                 <span>Birthday: 04/03/1997</span>
               </div>
             </div>
 
             <div className="flex items-center mb-4 text-gray-700 dark:text-gray-300">
-              <Rss className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
+              <Rss className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400 shrink-0" />
               <span>Followed by 40 people</span>
             </div>
 
@@ -170,7 +174,9 @@ const ProfileDetails = ({ activeTab }) => {
         </Card>
       </motion.div>
     ),
+
     friends: <MutualFriends />,
+
     photos: (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -179,22 +185,25 @@ const ProfileDetails = ({ activeTab }) => {
         className="mb-4"
       >
         <Card className="bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-gray-200 dark:border-neutral-700 shadow-sm">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
               Photos
             </h2>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4">
               {userPosts
-                ?.filter(
-                  (post) => post?.mediaType === "image" && post?.mediaUrl
-                )
+                .filter((p) => p?.mediaType === "image" && p?.mediaUrl)
                 .map((post) => (
-                  <img
-                    src={post.mediaUrl}
+                  <div
                     key={post._id}
-                    alt="user_all_photos"
-                    className="w-full h-auto rounded-lg object-cover hover:scale-[1.02] transition-transform duration-200"
-                  />
+                    className="aspect-square overflow-hidden rounded-lg"
+                  >
+                    <img
+                      src={post.mediaUrl}
+                      alt="user_all_photos"
+                      className="w-full h-full object-cover hover:scale-[1.05] transition-transform duration-200"
+                    />
+                  </div>
                 ))}
             </div>
           </CardContent>
@@ -209,7 +218,7 @@ const ProfileDetails = ({ activeTab }) => {
       <EditBio
         isOpen={isSetEditBioModel}
         onClose={() => setIsSetEditBioModel(false)}
-      ></EditBio>
+      />
     </div>
   );
 };

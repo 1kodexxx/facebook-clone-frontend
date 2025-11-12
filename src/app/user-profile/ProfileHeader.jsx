@@ -1,4 +1,5 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,40 +23,41 @@ const ProfileHeader = () => {
   return (
     <div className="relative">
       {/* ==== COVER IMAGE ==== */}
-      <div className="relative h-64 md:h-80 bg-gray-300 overflow-hidden">
+      <div className="relative h-40 sm:h-56 md:h-72 lg:h-80 bg-gray-300 overflow-hidden">
         <img src="" alt="cover" className="w-full h-full object-cover" />
         <Button
-          className="absolute bottom-4 right-4 flex items-center"
+          className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex items-center"
           variant="secondary"
           size="sm"
           onClick={() => setIsEditCoverModal(true)}
         >
           <Camera className="mr-2 h-4 w-4" />
           <span className="hidden md:block">Edit Cover Photo</span>
+          <span className="md:hidden">Edit</span>
         </Button>
       </div>
 
       {/* ==== PROFILE INFO ==== */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 sm:-mt-16 md:-mt-20 relative z-10">
         <div className="flex flex-col md:flex-row items-center md:items-end md:space-x-5">
-          <Avatar className="h-32 w-32 border-4 border-white dark:border-gray-600">
+          <Avatar className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 ring-4 ring-white dark:ring-gray-700">
             <AvatarImage />
             <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
               D
             </AvatarFallback>
           </Avatar>
 
-          <div className="mt-4 md:mt-0 text-center md:text-left flex-grow">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="mt-3 sm:mt-4 md:mt-0 text-center md:text-left flex-grow">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               Sasha Pushkin
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 font-semibold">
+            <p className="text-gray-600 dark:text-gray-400 font-semibold text-sm sm:text-base">
               3.5k friends
             </p>
           </div>
 
           <Button
-            className="mt-4 md:mt-0 flex items-center gap-2"
+            className="mt-3 md:mt-0 flex items-center gap-2"
             onClick={() => setIsEditProfileModal(true)}
           >
             <PenLine className="h-4 w-4" />
@@ -78,11 +80,10 @@ const ProfileHeader = () => {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-[92vw] max-w-md"
             >
-              {/* === HEADER === */}
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   Edit Profile
                 </h2>
                 <Button
@@ -94,10 +95,9 @@ const ProfileHeader = () => {
                 </Button>
               </div>
 
-              {/* === FORM === */}
               <form className="space-y-5">
                 <div className="flex flex-col items-center mb-4">
-                  <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-600 mb-4">
+                  <Avatar className="h-24 w-24 ring-4 ring-white dark:ring-gray-700 mb-4">
                     <AvatarImage />
                     <AvatarFallback className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
                       D
@@ -167,10 +167,10 @@ const ProfileHeader = () => {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-[92vw] max-w-md"
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   Edit Cover Photo
                 </h2>
                 <Button
@@ -183,7 +183,7 @@ const ProfileHeader = () => {
               </div>
 
               <form className="space-y-5">
-                <div className="flex flex-col items-center mb-4">
+                <div className="flex flex-col items-center mb-4 w-full">
                   {isCoverPhotoPreview && (
                     <img
                       src=""

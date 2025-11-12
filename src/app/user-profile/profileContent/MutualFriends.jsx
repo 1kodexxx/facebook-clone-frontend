@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // ✅ правильный импорт из shadcn/ui
+} from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { MoreHorizontal, UserX } from "lucide-react";
 
@@ -42,27 +42,27 @@ const MutualFriends = () => {
       className="mb-4"
     >
       <Card className="bg-white/70 dark:bg-neutral-900/60 backdrop-blur border border-gray-200 dark:border-neutral-700 shadow-sm">
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+        <CardContent className="p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
             Mutual Friends
           </h2>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {mutualFriends.map((friend) => (
               <div
                 key={friend.id}
-                className="bg-gray-50 dark:bg-neutral-800/80 border border-gray-200 dark:border-neutral-700 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-all duration-200"
+                className="bg-gray-50 dark:bg-neutral-800/80 border border-gray-200 dark:border-neutral-700 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-all duration-200 min-w-0"
               >
                 {/* Friend Info */}
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12 ring-2 ring-gray-200 dark:ring-neutral-700">
+                <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+                  <Avatar className="h-12 w-12 ring-2 ring-gray-200 dark:ring-neutral-700 shrink-0">
                     <AvatarImage src={friend.avatar} alt={friend.name} />
                     <AvatarFallback className="bg-gray-300 dark:bg-gray-600 text-black dark:text-white">
                       {friend.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {friend.name}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">

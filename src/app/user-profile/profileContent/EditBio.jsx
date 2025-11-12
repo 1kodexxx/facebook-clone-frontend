@@ -25,19 +25,26 @@ const EditBio = ({ isOpen, onClose }) => {
     hometown: "",
   });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) =>
+    setFormData((s) => ({ ...s, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Updated bio:", formData);
-    onClose(false); // закрываем модалку
+    // закрываем модалку
+    onClose(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border border-gray-200 dark:border-neutral-700 shadow-xl rounded-xl">
+      <DialogContent
+        className="
+          w-[92vw] sm:max-w-[520px]
+          max-h-[85vh] overflow-y-auto
+          bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md
+          border border-gray-200 dark:border-neutral-700 shadow-xl rounded-xl
+        "
+      >
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-gray-800 dark:text-gray-100">
             Edit Profile Bio
@@ -45,9 +52,10 @@ const EditBio = ({ isOpen, onClose }) => {
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="bioText" className="text-right">
+          <div className="grid gap-4 py-2">
+            {/* Bio */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-3">
+              <Label htmlFor="bioText" className="sm:text-right pt-2">
                 Bio
               </Label>
               <Textarea
@@ -55,13 +63,14 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="bioText"
                 value={formData.bioText}
                 onChange={handleChange}
-                className="col-span-3 min-h-[90px]"
+                className="sm:col-span-3 min-h-[90px]"
                 placeholder="Write something about yourself..."
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="liveIn" className="text-right">
+            {/* Live In */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-3">
+              <Label htmlFor="liveIn" className="sm:text-right">
                 Live In
               </Label>
               <Input
@@ -69,13 +78,14 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="liveIn"
                 value={formData.liveIn}
                 onChange={handleChange}
-                className="col-span-3"
+                className="sm:col-span-3"
                 placeholder="Murmansk"
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="relationship" className="text-right">
+            {/* Relationship */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-3">
+              <Label htmlFor="relationship" className="sm:text-right">
                 Relationship
               </Label>
               <Input
@@ -83,13 +93,14 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="relationship"
                 value={formData.relationship}
                 onChange={handleChange}
-                className="col-span-3"
+                className="sm:col-span-3"
                 placeholder="Single"
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="workPlace" className="text-right">
+            {/* Work Place */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-3">
+              <Label htmlFor="workPlace" className="sm:text-right">
                 Work Place
               </Label>
               <Input
@@ -97,13 +108,14 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="workPlace"
                 value={formData.workPlace}
                 onChange={handleChange}
-                className="col-span-3"
+                className="sm:col-span-3"
                 placeholder="1kodexxx"
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="education" className="text-right">
+            {/* Education */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-3">
+              <Label htmlFor="education" className="sm:text-right">
                 Education
               </Label>
               <Input
@@ -111,13 +123,14 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="education"
                 value={formData.education}
                 onChange={handleChange}
-                className="col-span-3"
+                className="sm:col-span-3"
                 placeholder="MGU"
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right">
+            {/* Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-3">
+              <Label htmlFor="phone" className="sm:text-right">
                 Phone
               </Label>
               <Input
@@ -125,13 +138,14 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="col-span-3"
+                className="sm:col-span-3"
                 placeholder="+7 911 319 2341"
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="hometown" className="text-right">
+            {/* Hometown */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-3">
+              <Label htmlFor="hometown" className="sm:text-right">
                 Hometown
               </Label>
               <Input
@@ -139,7 +153,7 @@ const EditBio = ({ isOpen, onClose }) => {
                 name="hometown"
                 value={formData.hometown}
                 onChange={handleChange}
-                className="col-span-3"
+                className="sm:col-span-3"
                 placeholder="Murmansk"
               />
             </div>
