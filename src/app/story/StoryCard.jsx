@@ -3,59 +3,51 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { usePostStore } from "../store/usePostStore";
+import userStore from "../store/userStore";
 import ShowStoryPreview from "./ShowStoryPreview";
-4;
 
 const StoryCard = ({ isAddStory, story }) => {
-  const [postContent, setPostContent] = useState("");
-  const { user } = useUserStore();
-  const [filePreview, setFilePreview] = useState(null); // string (blob URL)
-  const [selectedFile, setSelectedFile] = useState(null); // File
+  const { user } = userStore();
+  const [filePreview, setFilePreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileType, setFileType] = useState("");
   const [loading, setLoading] = useState(false);
   const { handleCreateStory } = usePostStore();
-  const { showPreview, setShowPreview } = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isNewStory, setIsNewStory] = useState(false);
 
   const fileInputRef = useRef(null);
 
-  const userPlaceholder =
-    user?.username
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("") || "U";
+  const userPlaceholder = story?.user?.username
+    ?.split(" ")
+    .map((name) => name[0])
+    .join("");
 
-  const clearFile = () => {
-    if (filePreview) URL.revokeObjectURL(filePreview);
-    setSelectedFile(null);
-    setFilePreview(null);
-    setShowImageUpload(false);
-  };
-
-  useEffect(() => {
-    if (!isPostFormOpen) {
-      setShowEmojiPicker(false);
-      clearFile();
-    }
-  }, [isPostFormOpen]); // eslint-disable-line
-
-  const handleFileChange = (e) => {
+  const handleFileChnage = (e) => {
     const file = e.target.files[0];
-    setSelectedFile(file);
-    setFileType(file.type);
-    setFilePreview(URL.createObjectURL(file));
-    setIsNewStory(true);
+    if (file) {
+      setSelectedFile(file),
+        setFileType(file.type.startsWith("video") ? "video" : "image");
+      setFilePreview(URL.createObjectURL(file));
+      setIsNewStory(true);
+      setShowPreview(true);
+    }
+    e.target.value = "";
   };
 
-  const handleStory = async () => {
+  const handleCreateStoryPost = async () => {
     try {
       setLoading(true);
-      if (selectedFile) formData.append("media", selectedFile);
-
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append("media", selectedFile);
+      }
       await handleCreateStory(formData);
       resetStoryState();
-    } catch (err) {
-      console.error(err);
-    } finally {
+    } catch (error) {
+      console.error(error);
       setLoading(false);
     }
   };
@@ -68,7 +60,6 @@ const StoryCard = ({ isAddStory, story }) => {
     setShowPreview(false);
     setSelectedFile(null);
     setFilePreview(null);
-    setIsPostFormOpen(false);
     setFileType(null);
     setIsNewStory(false);
   };
@@ -79,15 +70,6 @@ const StoryCard = ({ isAddStory, story }) => {
     setIsNewStory(false);
     setShowPreview(true);
   };
-
-  const isImage = selectedFile ? selectedFile.type.startsWith("image") : false;
-  const isVideo = selectedFile ? selectedFile.type.startsWith("video") : false;
-
-  const openFilePicker = () =>
-    fileInputRef.current && fileInputRef.current.click();
-
-  const canPost =
-    !loading && (postContent.trim().length > 0 || Boolean(selectedFile));
 
   return (
     <>
@@ -102,15 +84,14 @@ const StoryCard = ({ isAddStory, story }) => {
                 <Avatar className="w-full h-full rounded-none">
                   {user?.profilePicture ? (
                     <AvatarImage
-                      src={user.profilePicture}
-                      alt={user?.username || "User"}
+                      src={user?.profilePicture}
+                      alt={user?.username}
                       className="object-cover"
                     />
                   ) : (
-                    <>
-                      <p className="w-full h-full flex justify-center items-center text-4xl"></p>
-                      <AvatarFallback>{userPlaceholder}</AvatarFallback>
-                    </>
+                    <p className="w-full h-full flex justify-center items-center text-4xl">
+                      {userPlaceholder}
+                    </p>
                   )}
                 </Avatar>
               </div>
@@ -118,19 +99,19 @@ const StoryCard = ({ isAddStory, story }) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-0 h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600"
+                  className="p-0 h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 "
                   onClick={() => fileInputRef.current.click()}
                 >
                   <Plus className="h-5 w-5 text-white" />
                 </Button>
-                <p className="text-xs font-semibold mt-1">Create a story</p>
+                <p className="text-xs font-semibold mt-1">Create Story</p>
               </div>
               <input
                 type="file"
                 accept="image/*,video/*"
                 className="hidden"
                 ref={fileInputRef}
-                onChange={handle}
+                onChange={handleFileChnage}
               />
             </div>
           ) : (
@@ -139,22 +120,22 @@ const StoryCard = ({ isAddStory, story }) => {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={story?.mediaUrl}
-                  alt={story?.user?.username || "Story"}
+                  alt={story?.user?.username}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <video
                   src={story?.mediaUrl}
-                  alt={story?.user?.username || "Story"}
+                  alt={story?.user?.username}
                   className="w-full h-full object-cover"
                 />
               )}
-              <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full">
-                <Avatar className="h-8 w-8">
-                  {user?.profilePicture ? (
+              <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full ">
+                <Avatar className="w-8 h-8">
+                  {story?.user?.profilePicture ? (
                     <AvatarImage
-                      src={user.profilePicture}
-                      alt={user?.username || "User"}
+                      src={story?.user?.profilePicture}
+                      alt={story?.user?.username}
                     />
                   ) : (
                     <AvatarFallback>{userPlaceholder}</AvatarFallback>
@@ -162,24 +143,25 @@ const StoryCard = ({ isAddStory, story }) => {
                 </Avatar>
               </div>
               <div className="absolute bottom-2 left-2 right-2">
-                <p className="text-white text-xs font-semibold">
-                  {user?.username || "User"}
+                <p className="text-white text-xs font-semibold truncate">
+                  {story?.user?.username}
                 </p>
               </div>
             </>
           )}
         </CardContent>
       </Card>
-
       {showPreview && (
         <ShowStoryPreview
           file={filePreview}
           fileType={fileType}
           onClose={handleClosePreview}
-          onPost={handleCreateStory}
+          onPost={handleCreateStoryPost}
           isNewStory={isNewStory}
           username={isNewStory ? user?.username : story?.user?.username}
-          avatar={isNewStory ? user?.profilePicture : story?.profilePicture}
+          avatar={
+            isNewStory ? user?.profilePicture : story?.user?.profilePicture
+          }
           isLoading={loading}
         />
       )}
