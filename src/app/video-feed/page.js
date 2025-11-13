@@ -1,51 +1,116 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+const { useRouter } = require("next/router");
+const { default: LeftSideBar } = require("../components/LeftSideBar");
+const { Button } = require("@/components/ui/button");
+
 import { ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import LeftSideBar from "../components/LeftSideBar";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { usePostStore } from "../store/usePostStore";
 import VideoCard from "./VideoCard";
 
-export default function VideoPage() {
+const Page = () => {
+  // Локальное состоянгие лайкнутых постов (id-шники в Set)
+  const [likePosts, setLikePosts] = useState(new Set());
+
+  // Посты и экшены из zustand стора
+  const {
+    posts = [],
+    fetchPost,
+    handleLikePost,
+    handleCommentPost,
+    handleSharePost,
+  } = usePostStore();
+
   const router = useRouter();
 
-  const videoPosts = [
-    {
-      mediaUrl: "", // вставь mp4 для теста
-      mediaType: "video",
-      user: { username: "Sasha" },
-      comments: [
-        {
-          user: { username: "Sasha" },
-          text: "Nice picture",
-          createdAt: "20-04-2024",
-        },
-      ],
-    },
-  ];
+  // Грузим посты при монтировании страницы
+  useEffect(() => {
+    fetchPost();
+  }, [fetchPost]);
+
+  // Восстанавливаем лайки из localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedLikes = localStorage.getItem("likePosts");
+    if (savedLikes) {
+      setLikePosts(new Set(JSON.parse(savedLikes)));
+    }
+  }, []);
+
+  // Лайк / Дизлайк поста
+  const handleLike = async (postId) => {
+    const updatedLikePost = new Set(likePosts);
+
+    if (updatedLikePost.has(postId)) {
+      updatedLikePost.delete(postId);
+      toast.error("Post disliked successfully");
+    } else {
+      updatedLikePost.add(postId);
+      toast.success("Post liked successfully");
+    }
+
+    setLikePosts(updatedLikePost);
+
+    if (typeof window !== "undefined") {
+      localeStorage.setItem(
+        "likePosts",
+        JSON.stringify(Array.from(updatedLikePost))
+      );
+    }
+
+    try {
+      await handleLikePost(postId);
+      await fetchPost();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to like or unlike the post");
+    }
+  };
+
+  // Назад к основному фиду
+  const handleBack = () => {
+    router.push("/");
+  };
+
+  // Фильтруем только видеопосты
+  const videoPosts = Array.isArray(posts)
+    ? posts.filter((post) => post.mediaType === "video")
+    : [];
 
   return (
-    <div className="mt-12 min-h-screen bg-gray-50 dark:bg-[rgb(24,25,26)] overflow-x-hidden">
+    <div className="mt-12 min-h-screen">
       <LeftSideBar />
+      <main className="ml-0 md:ml-64 p-6">
+        {/* Кнопка назад */}
+        <Button variant="ghost" className="mb-4" onClick={handleBack}>
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Back to feed
+        </Button>
 
-      <main className="ml-0 md:ml-64 px-3 sm:px-4 py-4 sm:py-6">
-        <div className="max-w-[100vw] sm:max-w-2xl lg:max-w-3xl mx-auto">
-          <Button
-            variant="ghost"
-            className="mb-3 sm:mb-4 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-            onClick={() => router.back()}
-          >
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            <span className="hidden xs:inline">Back to feed</span>
-          </Button>
-
-          <div className="space-y-4 sm:space-y-6">
-            {videoPosts.map((post, index) => (
-              <VideoCard key={index} post={post} />
-            ))}
-          </div>
+        {/* Список видеокарточек */}
+        <div className="max-w-3xl mx-auto">
+          {videoPosts.map((post) => (
+            <VideoCard
+              key={post?._id}
+              post={post}
+              isLiked={likePosts.has(post?._id)}
+              onLike={() => handleLike(post?._id)}
+              onComment={async ({ text }) => {
+                await handleCommentPost(post?._id, text);
+                await fetchPost();
+              }}
+              onShare={async () => {
+                await handleSharePost(post?._id);
+                await fetchPost();
+              }}
+            />
+          ))}
         </div>
       </main>
     </div>
   );
-}
+};
+
+export default Page;

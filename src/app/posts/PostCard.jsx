@@ -290,7 +290,7 @@ const PostCard = ({ post, isLiked, onShare, onComment, onLike }) => {
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <PostComments post={post} />
+                <PostComments post={post} onAddComment={onComment} />
               </motion.div>
             )}
           </AnimatePresence>

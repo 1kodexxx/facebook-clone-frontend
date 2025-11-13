@@ -1,61 +1,61 @@
 "use client";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-const VideoComments = ({ comments = [] }) => {
-  if (!comments.length) return null;
+// Простое форматирование даты
+const formatDate = (value) => {
+  if (!value) return "";
+  const d = new Date(value);
+  return isNaN(+d) ? String(value) : d.toLocaleString();
+};
 
+const VideoComments = ({ comments }) => {
   return (
-    <div className="mt-1 space-y-3">
-      {comments.map((comment, index) => {
+    <>
+      {comments?.map((comment) => {
         const name = comment?.user?.username || "User";
+        const initials =
+          name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase() || "U";
+
         return (
-          <div
-            key={index}
-            className="flex items-start space-x-3 text-gray-900 dark:text-gray-100"
-          >
-            {/* Аватар */}
-            <Avatar className="h-8 w-8 flex-shrink-0 mt-[2px]">
-              <AvatarImage />
-              <AvatarFallback className="bg-gray-600 text-white text-sm">
-                {name.slice(0, 1).toUpperCase()}
-              </AvatarFallback>
+          <div key={comment?._id} className="flex items-start space-x-2 mb-4">
+            {/* Аватар автора комментария */}
+            <Avatar className="h-8 w-8">
+              {comment?.user?.profilePicture ? (
+                <AvatarImage src={comment.user.profilePicture} alt={name} />
+              ) : (
+                <AvatarFallback className="dark:bg-gray-400">
+                  {initials}
+                </AvatarFallback>
+              )}
             </Avatar>
 
-            {/* Комментарий */}
-            <div className="flex-1 min-w-0">
-              <div className="rounded-lg p-2 transition-colors duration-150 bg-[#f0f2f5] dark:bg-[#1a1d29] hover:bg-[#e6e7eb] dark:hover:bg-[#232634]">
-                <p className="font-semibold text-sm mb-[2px] leading-tight truncate">
-                  {name}
-                </p>
-                <p className="text-sm leading-snug break-words">
-                  {comment?.text}
-                </p>
+            {/* Тело комментария */}
+            <div className="flex-1">
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
+                <p className="font-semibold text-sm">{name}</p>
+                <p className="text-sm">{comment?.text}</p>
               </div>
 
-              <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400 space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="px-1 h-auto text-xs hover:text-blue-600 dark:hover:text-blue-400"
-                >
+              {/* Кнопки Like / Reply + дата */}
+              <div className="flex items-center mt-1 text-xs text-gray-400 space-x-2">
+                <Button variant="ghost" size="sm">
                   Like
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="px-1 h-auto text-xs hover:text-blue-600 dark:hover:text-blue-400"
-                >
+                <Button variant="ghost" size="sm">
                   Reply
                 </Button>
-                <span className="whitespace-nowrap">{comment?.createdAt}</span>
+                <span>{formatDate(comment?.createdAt)}</span>
               </div>
             </div>
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 
