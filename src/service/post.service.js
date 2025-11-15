@@ -1,149 +1,135 @@
-// === src/service/post.service.js ===
-// Сервисы для работы с постами, комментариями, репостами и сторис
+// src/service/post.service.js
 import axiosInstance from "./url.service";
 
 /**
- * 📝 Создать пост (текст и/или медиа)
- *
- * Ожидается FormData:
- * - content: string
- * - media: File (опционально)
- * @param {FormData} postData
- * @returns {Promise<Object>} - созданный пост
+ * Создать пост (текст и/или медиа)
  */
-
 export const createPost = async (postData) => {
   try {
     const result = await axiosInstance.post("/posts", postData);
     return result?.data?.data;
   } catch (error) {
-    console.error("🔴 Ошибка при создании поста (createPost):", error);
+    console.error("createPost error:", error);
     throw error;
   }
 };
 
 /**
- * 📚 Получить все посты (общая лента)
- *
- * @returns {Promise<Object[]>}
+ * Создать сторис
+ */
+export const createStory = async (storyData) => {
+  try {
+    const result = await axiosInstance.post("/posts/story", storyData);
+    return result?.data?.data;
+  } catch (error) {
+    console.error("createStory error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Получить все посты
  */
 export const getAllPosts = async () => {
   try {
     const result = await axiosInstance.get("/posts");
     return result?.data?.data;
   } catch (error) {
-    console.error("🔴 Ошибка при получении постов (getAllPosts):", error);
+    console.error("getAllPosts error:", error);
     throw error;
   }
 };
 
 /**
- * 📚 Получить все посты конкретного пользователя
- *
- * @param {string} userId
- * @returns {Promise<Object[]>}
- */
-
-export const getAllUserPosts = async (userId) => {
-  try {
-    const result = await axiosInstance.get(`/posts/user/${userId}`);
-    return result?.data?.data;
-  } catch (error) {
-    console.error(
-      "🔴 Ошибка при получении постов пользователя (getAllUserPosts):",
-      error
-    );
-  }
-};
-
-/**
- * ⭐ Лайк / анлайк поста
- *
- * @param {string} postId
- * @returns {Promise<Object>} - обновлённый пост
- */
-
-export const likePost = async (postId) => {
-  try {
-    const result = await axiosInstance.post(`/posts/likes/${postId}`);
-    return result?.data?.data;
-  } catch (error) {
-    console.error("🔴 Ошибка при лайке поста (likePost):", error);
-    throw error;
-  }
-};
-
-/**
- * 💬 Добавить комментарий к посту
- *
- * @param {string} postId
- * @param {Object} commentData - тело запроса, например { text: "Комментарий" }
- * @returns {Promise<Object>} - пост с добавленным комментарием
- */
-
-export const commentsPost = async (postId, commentData) => {
-  try {
-    const result = await axiosInstance.post(
-      `/posts/comments/${postId}`,
-      commentData
-    );
-    return result?.data?.data;
-  } catch (error) {
-    console.error(
-      "🔴 Ошибка при добавлении комментария (commentsPost):",
-      error
-    );
-    throw error;
-  }
-};
-
-/**
- * 🔁 Репост поста
- *
- * @param {string} postId
- * @returns {Promise<Object>} - пост с обновлёнными данными о репостах
- */
-export const sharePost = async (postId) => {
-  try {
-    const result = await axiosInstance.post(`/posts/share/${postId}`);
-    return result?.data?.data;
-  } catch (error) {
-    console.error("🔴 Ошибка при репосте поста (sharePost):", error);
-    throw error;
-  }
-};
-
-/**
- * 📸 Создать сторис
- *
- * FormData:
- * - media: File
- *
- * @param {FormData} storyData
- * @returns {Promise<Object>} - созданная сторис
- */
-export const createStory = async (storyData) => {
-  try {
-    // На бэкенде сторис живут под /posts/story
-    const result = await axiosInstance.post("/posts/story", storyData);
-    return result?.data?.data;
-  } catch (error) {
-    console.error("🔴 Ошибка при создании сторис (createStory):", error);
-    throw error;
-  }
-};
-
-/**
- * 📸 Получить все сторис
- *
- * @returns {Promise<Object[]>}
+ * Получить все сторис
  */
 export const getAllStory = async () => {
   try {
     const result = await axiosInstance.get("/posts/story");
     return result?.data?.data;
   } catch (error) {
-    console.error("🔴 Ошибка при получении сторис (getAllStory):", error);
+    console.error("getAllStory error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Лайк/анлайк поста
+ */
+export const likePost = async (postId) => {
+  try {
+    const result = await axiosInstance.post(`/posts/likes/${postId}`);
+    return result?.data?.data;
+  } catch (error) {
+    console.error("likePost error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Комментарий к посту
+ */
+export const commentsPost = async (postId, comments) => {
+  try {
+    const result = await axiosInstance.post(
+      `/posts/comments/${postId}`,
+      comments
+    );
+    return result?.data?.data;
+  } catch (error) {
+    console.error("commentsPost error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Репост поста
+ */
+export const sharePost = async (postId) => {
+  try {
+    const result = await axiosInstance.post(`/posts/share/${postId}`);
+    return result?.data?.data;
+  } catch (error) {
+    console.error("sharePost error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Посты конкретного пользователя
+ */
+export const getAllUserPosts = async (userId) => {
+  try {
+    const result = await axiosInstance.get(`/posts/user/${userId}`);
+    return result?.data?.data;
+  } catch (error) {
+    console.error("getAllUserPosts error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Удалить свой пост
+ */
+export const deletePost = async (postId) => {
+  try {
+    const result = await axiosInstance.delete(`/posts/${postId}`);
+    return result?.data?.data;
+  } catch (error) {
+    console.error("deletePost error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Удалить свою сторис
+ */
+export const deleteStory = async (storyId) => {
+  try {
+    const result = await axiosInstance.delete(`/posts/story/${storyId}`);
+    return result?.data?.data;
+  } catch (error) {
+    console.error("deleteStory error:", error);
     throw error;
   }
 };

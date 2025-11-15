@@ -11,24 +11,16 @@ import axios from "axios";
  * NEXT_PUBLIC_BACKEND_URL = https://api.mysocial.ru
  */
 
-const ApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+const ApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
 
-if (!ApiUrl) {
-  // Это поможет быстрее понять, почему не работают запросы
-  console.warn(
-    "⚠️ NEXT_PUBLIC_BACKEND_URL не задан. Укажи адрес бэкенда в .env фронта."
-  );
+// *** ВРЕМЕННО: лог в браузер, чтобы убедиться ***
+if (typeof window !== "undefined") {
+  console.log("[axios] baseURL =", ApiUrl);
 }
 
-/**
- * Создаём преднастроенный axios-инстанс:
- * - baseURL - адрес бэкенда
- * - withCredentials - автоматически отправлять куки (auth_token)
- */
-
 const axiosInstance = axios.create({
-  baseUrl: ApiUrl,
-  withCredentials: true,
+  baseURL: ApiUrl,
+  withCredentials: true, // auth_token из куки будет отправляться
 });
 
 export default axiosInstance;
