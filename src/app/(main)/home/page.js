@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LeftSideBar from "../components/LeftSideBar";
-import RightSideBar from "../components/RightSideBar";
+import LeftSideBar from "../../components/layout/LeftSideBar";
+import RightSideBar from "../../components/layout/RightSideBar";
 import NewPostForm from "../posts/NewPostForm";
 import PostCard from "../posts/PostCard";
 import { usePostStore } from "../store/usePostStore"; // ✅ ИМЕНОВАННЫЙ импорт

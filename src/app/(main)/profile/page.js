@@ -1,6 +1,6 @@
 "use client";
 
-import LeftSideBar from "../components/LeftSideBar";
+import LeftSideBar from "../../../components/layout/LeftSideBar";
 import ProfileHeader from "./ProfileHeader";
 import ProfileTabs from "./ProfileTabs";
 

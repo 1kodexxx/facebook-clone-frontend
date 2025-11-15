@@ -12,8 +12,8 @@ import {
   Video,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import useSidebarStore from "../store/useSidebarStore";
-import useUserStore from "../store/useUserStore";
+import useSidebarStore from "../../app/store/useSidebarStore";
+import useUserStore from "../../app/store/useUserStore";
 
 const LeftSideBar = () => {
   const { isSidebarOpen, toggleSidebar } = useSidebarStore();

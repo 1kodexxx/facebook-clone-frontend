@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/service/auth.service";
-import useSidebarStore from "../store/useSidebarStore";
-import useUserStore from "../store/useUserStore";
+import useSidebarStore from "../../app/store/useSidebarStore";
+import useUserStore from "../../app/store/useUserStore";
 
 import { AnimatePresence, motion } from "framer-motion";
 import {

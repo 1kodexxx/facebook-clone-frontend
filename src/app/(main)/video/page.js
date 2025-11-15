@@ -1,7 +1,7 @@
 "use client";
 
 const { useRouter } = require("next/router");
-const { default: LeftSideBar } = require("../components/LeftSideBar");
+const { default: LeftSideBar } = require("../../components/layout/LeftSideBar");
 const { Button } = require("@/components/ui/button");
 
 import { ChevronLeft } from "lucide-react";

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import Loader from "@/lib/Loader";
 import { checkUserAuth, logout } from "@/service/auth.service";
-import Header from "./components/Header";
+import Header from "../components/layout/Header";
 import userStore from "./store/useUserStore";
 
 export default function AuthWrapper({ children }) {

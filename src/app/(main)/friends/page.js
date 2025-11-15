@@ -2,7 +2,7 @@
 
 import { FriendCardSkeleton, NoFriendsMessage } from "@/lib/Skeleten";
 import { useEffect, useState } from "react";
-import LeftSideBar from "../components/LeftSideBar";
+import LeftSideBar from "../../../components/layout/LeftSideBar";
 import FriendRequest from "./FriendRequest";
 import FriendsSuggestion from "./FriendsSuggestion";
 
