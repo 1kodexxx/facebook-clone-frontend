@@ -12,7 +12,7 @@ import useUserStore from "../store/useUserStore";
 import Header from "@/components/layout/Header";
 
 // Пути, доступные без авторизации
-const PUBLIC_ROUTES = ["/auth/login"];
+const PUBLIC_ROUTES = ["/login"];
 
 export default function AuthWrapper({ children }) {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function AuthWrapper({ children }) {
       });
 
       if (!isPublicRoute) {
-        router.push("/auth/login");
+        router.push("/login");
       }
     };
 
