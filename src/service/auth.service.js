@@ -1,50 +1,67 @@
+// === src/service/auth.service.js ===
 import axiosInstance from "./url.service";
 
-// SignUp user
+// Регистрация пользователя
 export const registerUser = async (userData) => {
   try {
     const response = await axiosInstance.post("/auth/register", userData);
+
     if (response?.data?.status === "success") {
-      return response.data;
+      return response.data; // { status, code, message, data }
     }
+
+    return null;
   } catch (error) {
-    console.log(error);
+    console.error("registerUser error:", error);
+    throw error;
   }
 };
 
-// Login User
+// Логин пользователя
 export const loginUser = async (userData) => {
   try {
     const response = await axiosInstance.post("/auth/login", userData);
+
     if (response?.data?.status === "success") {
-      return response.data;
+      return response.data; // { status, code, message, data }
     }
+
+    return null;
   } catch (error) {
-    console.log(error);
+    console.error("loginUser error:", error);
+    throw error;
   }
 };
 
-// Logout User
-export const logout = async (userData) => {
+// Логаут пользователя
+export const logout = async () => {
   try {
-    const response = await axiosInstance.get("/auth/logout", userData);
+    // НЕ передаём userData, он не нужен
+    const response = await axiosInstance.get("/auth/logout");
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.error("logout error:", error);
+    // не пробрасываем, чтобы не ломать логику AuthWrapper
+    return null;
   }
 };
 
-// Check auth api
+// Проверка авторизации
 export const checkUserAuth = async () => {
   try {
-    const response = await axiosInstance.get("users/check-auth");
-    if (response.data.status === "success") {
-      return { isAuthenticated: true, user: response?.data?.data };
-    } else if (response.status === "error") {
-      return { isAuthenticated: false };
+    // ВАЖНО: ведущий слэш!
+    const response = await axiosInstance.get("/users/check-auth");
+
+    if (response?.data?.status === "success") {
+      return {
+        isAuthenticated: true,
+        user: response.data.data,
+      };
     }
+
+    return { isAuthenticated: false };
   } catch (error) {
-    console.log(error);
+    console.error("checkUserAuth error:", error);
     return { isAuthenticated: false };
   }
 };

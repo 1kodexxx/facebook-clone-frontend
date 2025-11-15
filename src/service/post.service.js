@@ -1,16 +1,15 @@
-// === src/service/post.service.js ===
+// src/service/post.service.js
 import axiosInstance from "./url.service";
 
 /**
  * Создать пост (текст и/или медиа)
- * ОЖИДАЕТ FormData с полями:
- *  - content (string)
- *  - media (File)  // опционально
+ * FormData:
+ *  - content: string
+ *  - media: File (опционально)
  */
-export const createPost = async (postData /* FormData */) => {
+export const createPost = async (postData) => {
   try {
-    const result = await axiosInstance.post("/users/posts", postData);
-    // responseHandler возвращает { status, code, message, data }
+    const result = await axiosInstance.post("/posts", postData);
     return result?.data?.data;
   } catch (error) {
     console.error("createPost error:", error);
@@ -19,13 +18,15 @@ export const createPost = async (postData /* FormData */) => {
 };
 
 /**
- * Создать сторис (только медиа)
- * ОЖИДАЕТ FormData с полем:
- *  - media (File)
+ * Создать сторис
+ * FormData:
+ *  - media: File
  */
-export const createStory = async (storyData /* FormData */) => {
+export const createStory = async (storyData) => {
   try {
-    const result = await axiosInstance.post("/users/story", storyData);
+    // если на бэке router подмонтирован на /posts и там /story:
+    const result = await axiosInstance.post("/posts/story", storyData);
+    // или, если у тебя отдельный роут без префикса, тогда "/story"
     return result?.data?.data;
   } catch (error) {
     console.error("createStory error:", error);
@@ -38,7 +39,7 @@ export const createStory = async (storyData /* FormData */) => {
  */
 export const getAllPosts = async () => {
   try {
-    const result = await axiosInstance.get("/users/posts");
+    const result = await axiosInstance.get("/posts");
     return result?.data?.data;
   } catch (error) {
     console.error("getAllPosts error:", error);
@@ -51,7 +52,7 @@ export const getAllPosts = async () => {
  */
 export const getAllStory = async () => {
   try {
-    const result = await axiosInstance.get("/users/story");
+    const result = await axiosInstance.get("/posts/story"); // или "/story"
     return result?.data?.data;
   } catch (error) {
     console.error("getAllStory error:", error);
@@ -64,7 +65,7 @@ export const getAllStory = async () => {
  */
 export const likePost = async (postId) => {
   try {
-    const result = await axiosInstance.post(`/users/posts/likes/${postId}`);
+    const result = await axiosInstance.post(`/posts/likes/${postId}`);
     return result?.data?.data;
   } catch (error) {
     console.error("likePost error:", error);
@@ -74,13 +75,11 @@ export const likePost = async (postId) => {
 
 /**
  * Комментарий к посту
- * @param {string} postId
- * @param {{ text: string }} comments
  */
 export const commentsPost = async (postId, comments) => {
   try {
     const result = await axiosInstance.post(
-      `/users/posts/comments/${postId}`,
+      `/posts/comments/${postId}`,
       comments
     );
     return result?.data?.data;
@@ -95,7 +94,7 @@ export const commentsPost = async (postId, comments) => {
  */
 export const sharePost = async (postId) => {
   try {
-    const result = await axiosInstance.post(`/users/posts/share/${postId}`);
+    const result = await axiosInstance.post(`/posts/share/${postId}`);
     return result?.data?.data;
   } catch (error) {
     console.error("sharePost error:", error);
@@ -104,11 +103,11 @@ export const sharePost = async (postId) => {
 };
 
 /**
- * Получить посты конкретного пользователя
+ * Посты конкретного пользователя
  */
 export const getAllUserPosts = async (userId) => {
   try {
-    const result = await axiosInstance.get(`/users/posts/user/${userId}`);
+    const result = await axiosInstance.get(`/posts/user/${userId}`);
     return result?.data?.data;
   } catch (error) {
     console.error("getAllUserPosts error:", error);

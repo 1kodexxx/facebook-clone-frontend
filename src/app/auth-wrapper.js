@@ -1,9 +1,11 @@
+// === src/app/auth-wrapper.js ===
 "use client";
+
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import Loader from "@/lib/Loader";
 import { checkUserAuth, logout } from "@/service/auth.service";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import userStore from "./store/userStore";
 
@@ -20,49 +22,65 @@ export default function AuthWrapper({ children }) {
   useEffect(() => {
     let isMounted = true;
 
-    const handleLogout = async () => {
+    const fireLogout = () => {
       clearUser();
       if (isMounted) setIsAuthenticated(false);
-      try {
-        await logout();
-      } catch (error) {
-        console.log("Logout failed, please try again later", error);
+
+      // НЕ ждём ответа, просто отправляем запрос
+      logout().catch((err) => {
+        console.error("Logout request failed:", err);
+      });
+
+      if (!isLoginPage) {
+        router.push("/user-login");
       }
-      if (!isLoginPage) router.push("/user-login");
     };
 
     const checkAuth = async () => {
+      console.log("[AuthWrapper] checkAuth start, pathname:", pathname);
+
       try {
         const result = await checkUserAuth();
+        console.log("[AuthWrapper] checkUserAuth result:", result);
+
         if (!isMounted) return;
 
-        if (result?.isAuthenticated) {
+        if (result?.isAuthenticated && result.user) {
           setUser(result.user);
           setIsAuthenticated(true);
+          console.log("[AuthWrapper] authenticated, user:", result.user);
         } else {
-          await handleLogout();
+          console.log("[AuthWrapper] not authenticated, calling fireLogout");
+          fireLogout();
         }
       } catch (error) {
-        console.error("Authentication check failed", error);
-        await handleLogout();
+        console.error("[AuthWrapper] Authentication check failed:", error);
+        fireLogout();
       } finally {
-        if (isMounted) setLoading(false); // важно: false, а не true
+        if (isMounted) {
+          console.log("[AuthWrapper] setLoading(false)");
+          setLoading(false);
+        }
       }
     };
 
     if (!isLoginPage) {
+      setLoading(true);
       checkAuth();
     } else {
-      setLoading(false);
+      // На странице логина просто не проверяем auth
       setIsAuthenticated(false);
+      setLoading(false);
     }
 
     return () => {
       isMounted = false;
     };
-  }, [isLoginPage, router, setUser, clearUser]);
+  }, [isLoginPage, pathname, router, setUser, clearUser]);
 
-  if (loading) return <Loader />;
+  if (loading) {
+    return <Loader />; // твой синий экран с логотипом
+  }
 
   return (
     <>
