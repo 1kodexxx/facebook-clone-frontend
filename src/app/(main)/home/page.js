@@ -1,11 +1,11 @@
 "use client";
 
+import LeftSideBar from "@/components/layout/LeftSideBar";
+import RightSideBar from "@/components/layout/RightSideBar";
 import { useEffect, useState } from "react";
-import LeftSideBar from "../../components/layout/LeftSideBar";
-import RightSideBar from "../../components/layout/RightSideBar";
+import { usePostStore } from "../../store/usePostStore";
 import NewPostForm from "../posts/NewPostForm";
 import PostCard from "../posts/PostCard";
-import { usePostStore } from "../store/usePostStore"; // ✅ ИМЕНОВАННЫЙ импорт
 import StorySection from "../story/StorySection";
 
 export default function Page() {

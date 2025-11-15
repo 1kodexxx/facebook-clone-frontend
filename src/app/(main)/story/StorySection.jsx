@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePostStore } from "../store/usePostStore";
+import { usePostStore } from "../../store/usePostStore";
 import StoryCard from "./StoryCard";
 
 const CARD_W = 176; // ≈ w-44 + отступы на md
