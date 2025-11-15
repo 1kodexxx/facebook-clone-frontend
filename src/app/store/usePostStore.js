@@ -1,4 +1,6 @@
 // === src/app/store/usePostStore.js ===
+"use client";
+
 import {
   commentsPost,
   createPost,
@@ -12,14 +14,21 @@ import {
 import toast from "react-hot-toast";
 import { create } from "zustand";
 
+/**
+ * Стор постов, комментариев, лайков и сторис.
+ *
+ * Важно: все запросы к бэкенду вынесены в post.service.
+ */
 export const usePostStore = create((set, get) => ({
-  posts: [],
-  userPosts: [],
-  story: [],
+  posts: [], // лента
+  userPosts: [], // посты конкретного пользователя (профиль)
+  story: [], // сторисы
   loading: false,
   error: null,
 
-  // Получить все посты
+  /**
+   * Получить все посты (главная лента).
+   */
   fetchPost: async () => {
     set({ loading: true, error: null });
     try {
@@ -28,10 +37,13 @@ export const usePostStore = create((set, get) => ({
     } catch (error) {
       console.error("fetchPost error:", error);
       set({ error, loading: false });
+      toast.error("Не удалось загрузить ленту");
     }
   },
 
-  // Получить посты пользователя
+  /**
+   * Получить все посты конкретного пользователя.
+   */
   fetchUserPost: async (userId) => {
     set({ loading: true, error: null });
     try {
@@ -40,10 +52,13 @@ export const usePostStore = create((set, get) => ({
     } catch (error) {
       console.error("fetchUserPost error:", error);
       set({ error, loading: false });
+      toast.error("Не удалось загрузить посты пользователя");
     }
   },
 
-  // Получить все сторис
+  /**
+   * Получить все сторисы.
+   */
   fetchStoryPost: async () => {
     set({ loading: true, error: null });
     try {
@@ -52,97 +67,122 @@ export const usePostStore = create((set, get) => ({
     } catch (error) {
       console.error("fetchStoryPost error:", error);
       set({ error, loading: false });
+      toast.error("Не удалось загрузить сторис");
     }
   },
 
-  // Создать пост
-  handleCreatePost: async (postData /* FormData */) => {
+  /**
+   * Создать новый пост.
+   * postData — FormData (content + media).
+   */
+  handleCreatePost: async (postData) => {
     set({ loading: true, error: null });
     try {
       const newPost = await createPost(postData);
+
       set((state) => ({
         posts: newPost ? [newPost, ...(state.posts || [])] : state.posts,
         loading: false,
       }));
-      toast.success("Post created successfully");
+
+      toast.success("Пост успешно опубликован");
     } catch (error) {
       console.error("handleCreatePost error:", error);
       set({ error, loading: false });
-      toast.error("Failed to create a post");
+      toast.error("Не удалось создать пост");
     }
   },
 
-  // Создать сторис
-  handleCreateStory: async (storyData /* FormData */) => {
+  /**
+   * Создать сторис.
+   * storyData — FormData (media).
+   */
+  handleCreateStory: async (storyData) => {
     set({ loading: true, error: null });
     try {
       const newStory = await createStory(storyData);
+
       set((state) => ({
         story: newStory ? [newStory, ...(state.story || [])] : state.story,
         loading: false,
       }));
-      toast.success("Story created successfully");
+
+      toast.success("Сторис успешно опубликована");
     } catch (error) {
       console.error("handleCreateStory error:", error);
       set({ error, loading: false });
-      toast.error("Failed to create a story");
+      toast.error("Не удалось создать сторис");
     }
   },
 
-  // Лайк/анлайк поста
+  /**
+   * Лайк / анлайк поста.
+   * Мы делаем оптимистичное обновление стейта.
+   */
   handleLikePost: async (postId) => {
     try {
       await likePost(postId);
-      // по желанию можно оптимистично обновить стейт:
+
       const { posts } = get();
-      const updated = posts.map((p) =>
-        p?._id === postId
-          ? {
-              ...p,
-              hasLiked: !p.hasLiked,
-              likeCount: (p.likeCount || 0) + (p.hasLiked ? -1 : 1),
-            }
-          : p
-      );
+      const updated = (posts || []).map((post) => {
+        if (post?._id !== postId) return post;
+
+        const hasLiked = !!post.hasLiked;
+        const likeCount = (post.likeCount || 0) + (hasLiked ? -1 : 1);
+
+        return {
+          ...post,
+          hasLiked: !hasLiked,
+          likeCount: likeCount < 0 ? 0 : likeCount,
+        };
+      });
+
       set({ posts: updated });
     } catch (error) {
       console.error("handleLikePost error:", error);
       set({ error });
+      toast.error("Не удалось поставить лайк");
     }
   },
 
-  // Добавить комментарий
+  /**
+   * Добавить комментарий к посту.
+   * text — строка комментария.
+   */
   handleCommentPost: async (postId, text) => {
     set({ loading: true, error: null });
     try {
-      const newComments = await commentsPost(postId, { text });
+      // Бэкенд возвращает ОБНОВЛЁННЫЙ пост
+      const updatedPost = await commentsPost(postId, { text });
+
       set((state) => ({
-        posts: state.posts.map((post) =>
-          post?._id === postId
-            ? { ...post, comments: [...(post.comments || []), newComments] }
-            : post
+        posts: (state.posts || []).map((post) =>
+          post?._id === postId ? updatedPost : post
         ),
         loading: false,
       }));
-      toast.success("Comments added successfully");
+
+      toast.success("Комментарий добавлен");
     } catch (error) {
       console.error("handleCommentPost error:", error);
       set({ error, loading: false });
-      toast.error("Failed to add comments");
+      toast.error("Не удалось добавить комментарий");
     }
   },
 
-  // Репост
+  /**
+   * Репост поста.
+   */
   handleSharePost: async (postId) => {
     set({ loading: true, error: null });
     try {
       await sharePost(postId);
       set({ loading: false });
-      toast.success("Post shared successfully");
+      toast.success("Пост успешно репостнут");
     } catch (error) {
       console.error("handleSharePost error:", error);
       set({ error, loading: false });
-      toast.error("Failed to share this post");
+      toast.error("Не удалось сделать репост");
     }
   },
 }));

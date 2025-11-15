@@ -19,7 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Clock, MessageCircle, Send, Share2, ThumbsUp } from "lucide-react";
 import { Input } from "postcss";
-import useUserStore from "../store/userStore";
+import useUserStore from "../store/useUserStore";
 import VideoComments from "./VideoComments";
 
 const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {

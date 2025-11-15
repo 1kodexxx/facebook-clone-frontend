@@ -2,17 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Эти rgb-значения можно оставить для legacy-мест,
+   но основной цветовой контроль будет через HSL-переменные ниже */
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-start-rgb: 248, 249, 251;
+  --background-end-rgb: 248, 249, 251;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 24, 25, 26;
-    --background-end-rgb: 24, 25, 26;
+    --foreground-rgb: 248, 249, 251;
+    --background-start-rgb: 10, 10, 15;
+    --background-end-rgb: 10, 10, 15;
   }
 }
 
@@ -22,64 +24,104 @@
   }
 }
 
+/* ===========================
+   KSocial CyberNeon — палитра
+   =========================== */
+
 @layer base {
   :root {
-    --background: 0 0% 95%;
+    /* === БАЗОВЫЕ ЦВЕТА (светлая тема) === */
+
+    /* Неоновый голубой — основной акцент */
+    --primary: 186 100% 50%;
+    --primary-foreground: 240 10% 10%;
+
+    /* Неоновый фиолетовый — второй акцент */
+    --secondary: 275 100% 72%;
+    --secondary-foreground: 240 10% 10%;
+
+    /* Киберпанк-розовый — для важных акцентов */
+    --accent: 320 100% 63%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Фон и текст */
+    --background: 220 20% 98%; /* светлый, чуть холодный фон */
     --background-header: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 240 10% 10%;
+
+    /* Карточки / поповеры */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 240 10% 10%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
+    --popover-foreground: 240 10% 10%;
+
+    /* Приглушённые элементы (бордеры, вторичный текст) */
+    --muted: 220 15% 90%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+
+    /* Ошибки / destructive-состояния */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    /* Бордеры, инпуты, фокус-кольцо */
+    --border: 220 10% 85%;
+    --input: 220 10% 85%;
+    --ring: 186 100% 50%; /* primary */
+
+    /* Цвета для графиков / статистики */
+    --chart-1: 186 100% 50%; /* neon cyan  */
+    --chart-2: 275 100% 72%; /* neon purple */
+    --chart-3: 320 100% 63%; /* cyber pink */
+    --chart-4: 200 100% 55%; /* яркий голубой */
+    --chart-5: 50 100% 60%; /* неоновый жёлтый */
+
+    /* Радиус скругления по умолчанию */
     --radius: 0.5rem;
   }
+
   .dark {
-    --background: 240 10% 3.9%;
+    /* === БАЗОВЫЕ ЦВЕТА (тёмная тема) === */
+
+    /* Акценты — чуть ярче, чтобы «светиться» на тёмном фоне */
+    --primary: 186 100% 60%;
+    --primary-foreground: 240 10% 10%;
+
+    --secondary: 275 100% 75%;
+    --secondary-foreground: 240 10% 10%;
+
+    --accent: 320 100% 67%;
+    --accent-foreground: 240 10% 10%;
+
+    /* Глубокий кибер-фон */
+    --background: 240 10% 4%; /* почти чёрный, но не абсолютно */
     --foreground: 0 0% 98%;
-    --card: 0 0% 15.4%;
-    --card-foreground: 0 0% 15.4%;
-    --popover: 240 10% 3.9%;
+
+    --card: 240 10% 8%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+
+    --muted: 240 5% 16%;
+    --muted-foreground: 240 5% 65%;
+
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 200 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --background: 0 0% 9.4%; /* This corresponds to rgb(24, 25, 26) */
+
+    --border: 240 4% 22%;
+    --input: 240 4% 22%;
+    --ring: 186 100% 60%;
+
+    --chart-1: 186 100% 60%; /* neon cyan */
+    --chart-2: 275 100% 75%; /* neon purple */
+    --chart-3: 320 100% 67%; /* cyber pink */
+    --chart-4: 200 100% 60%; /* bright blue */
+    --chart-5: 50 100% 62%; /* neon yellow */
   }
 }
 
+/* Базовые стили Tailwind для body и бордеров */
 @layer base {
   * {
     @apply border-border;

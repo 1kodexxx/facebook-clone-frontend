@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Send } from "lucide-react";
 import { useMemo, useState } from "react";
 // поправь путь к стору, если другой
-import useUserStore from "../store/userStore";
+import useUserStore from "../store/useUserStore";
 
 const initials = (name = "") =>
   name

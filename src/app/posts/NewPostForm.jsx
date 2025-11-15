@@ -18,7 +18,7 @@ import { ImageIcon, Laugh, Plus, Video, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePostStore } from "../store/usePostStore";
-import useUserStore from "../store/userStore";
+import useUserStore from "../store/useUserStore";
 
 const Picker = dynamic(() => import("emoji-picker-react"), { ssr: false });
 
