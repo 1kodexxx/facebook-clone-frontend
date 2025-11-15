@@ -3,10 +3,13 @@
 
 import axiosInstance from "./url.service";
 
+/* -------------------------------------------------------------------------- */
+/*                              ПОДПИСКИ / ДРУЗЬЯ                             */
+/* -------------------------------------------------------------------------- */
+
 /**
  * 🤝 Подписаться на пользователя
- *
- * @param {string} userIdToFollow
+ * Бэкенд: POST /users/follow
  */
 export const followUser = async (userIdToFollow) => {
   try {
@@ -22,8 +25,7 @@ export const followUser = async (userIdToFollow) => {
 
 /**
  * 🙅‍♂️ Отписаться от пользователя
- *
- * @param {string} userIdToUnfollow
+ * Бэкенд: POST /users/unfollow
  */
 export const unfollowUser = async (userIdToUnfollow) => {
   try {
@@ -38,9 +40,8 @@ export const unfollowUser = async (userIdToUnfollow) => {
 };
 
 /**
- * 🗑 Удалить входящую "заявку в друзья"
- *
- * @param {string} requestSenderId
+ * 🗑 Удалить входящую «заявку в друзья»
+ * Бэкенд: POST /users/friend-request/remove
  */
 export const deleteUserFromRequest = async (requestSenderId) => {
   try {
@@ -58,7 +59,8 @@ export const deleteUserFromRequest = async (requestSenderId) => {
 };
 
 /**
- * 📥 Получить входящие заявки (кто подписан на меня, а я нет)
+ * 📥 Получить входящие заявки (кто подписан на меня, а я — нет)
+ * Бэкенд: GET /users/friend-request
  */
 export const getAllFriendsRequest = async () => {
   try {
@@ -75,6 +77,7 @@ export const getAllFriendsRequest = async () => {
 
 /**
  * 🧩 Пользователи без связи (ни я на них, ни они на меня)
+ * Бэкенд: GET /users/user-to-request
  */
 export const getAllUserForRequest = async () => {
   try {
@@ -91,8 +94,7 @@ export const getAllUserForRequest = async () => {
 
 /**
  * 👥 Общие друзья между мной и другим пользователем
- *
- * @param {string} userIdToFollow
+ * Бэкенд: GET /users/mutual-friends?userIdToFollow=...
  */
 export const getAllMutualFriends = async (userIdToFollow) => {
   try {
@@ -111,6 +113,7 @@ export const getAllMutualFriends = async (userIdToFollow) => {
 
 /**
  * 📋 Получить всех пользователей (кроме текущего)
+ * Бэкенд: GET /users
  */
 export const getAllUsers = async () => {
   try {
@@ -125,10 +128,19 @@ export const getAllUsers = async () => {
   }
 };
 
+/* -------------------------------------------------------------------------- */
+/*                             ПРОФИЛЬ / BIO / AVАТАР                         */
+/* -------------------------------------------------------------------------- */
+
 /**
  * 👤 Получить профиль пользователя по ID
+ * Бэкенд: GET /users/profile/:userId
  *
- * @param {string} userId
+ * Возвращает:
+ * {
+ *   profile: User,
+ *   isOwner: boolean
+ * }
  */
 export const getUserProfile = async (userId) => {
   try {
@@ -142,9 +154,7 @@ export const getUserProfile = async (userId) => {
 
 /**
  * 📝 Обновить или создать BIO пользователя
- *
- * @param {string} userId
- * @param {Object} bioData
+ * Бэкенд: PUT /users/bio/:userId
  */
 export const updateUserBio = async (userId, bioData) => {
   try {
@@ -162,11 +172,10 @@ export const updateUserBio = async (userId, bioData) => {
  * Ожидается FormData:
  *  - username?: string
  *  - gender?: string
- *  - dateOfBirth?: string
+ *  - dateOfBirth?: string (ISO / yyyy-mm-dd)
  *  - profilePicture?: File
  *
- * @param {string} userId
- * @param {FormData} formData
+ * Бэкенд: PUT /users/profile/:userId
  */
 export const updateUserProfile = async (userId, formData) => {
   try {
@@ -185,13 +194,12 @@ export const updateUserProfile = async (userId, formData) => {
 };
 
 /**
- * 🖼 Обновить обложку профиля
+ * 🖼 Обновить обложку профиля (coverPhoto)
  *
- * FormData:
+ * Ожидается FormData:
  *  - coverPhoto: File
  *
- * @param {string} userId
- * @param {FormData} formData
+ * Бэкенд: PUT /users/profile/cover-photo/:userId
  */
 export const updateCoverPhoto = async (userId, formData) => {
   try {
