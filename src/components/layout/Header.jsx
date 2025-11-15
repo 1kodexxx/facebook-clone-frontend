@@ -35,8 +35,8 @@ import toast from "react-hot-toast";
 
 const NAV_ITEMS = [
   { icon: Home, path: "/", label: "Home" },
-  { icon: Video, path: "/video-feed", label: "Video" },
-  { icon: Users, path: "/friends-list", label: "Friends" },
+  { icon: Video, path: "/video", label: "Video" },
+  { icon: Users, path: "/friends", label: "Friends" },
 ];
 
 const Header = () => {

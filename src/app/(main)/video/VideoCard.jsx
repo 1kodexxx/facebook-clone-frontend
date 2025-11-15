@@ -1,8 +1,10 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,51 +13,48 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-// import VideoComments from "./VideoComments";
-// import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-// import { Input } from "@/components/ui/input";
-// import useUserStore from "../store/userStore";
-import { Button } from "@/components/ui/button";
+
 import { Clock, MessageCircle, Send, Share2, ThumbsUp } from "lucide-react";
-import { Input } from "postcss";
-import useUserStore from "../store/useUserStore";
+import useUserStore from "../../store/useUserStore";
 import VideoComments from "./VideoComments";
 
+/**
+ * Карточка одного видеопоста.
+ *
+ * Пропсы:
+ *  - post        — объект поста
+ *  - isLiked     — лайкнул ли текущий пользователь пост
+ *  - onLike      — обработчик лайка
+ *  - onComment   — (async) отправка комментария наверх
+ *  - onShare     — (async) логика репоста на бэкенд
+ */
 const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
-  // Состояние открытия модалки шаринга
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-
-  // Показывать ли блок с комментариями
   const [showComments, setShowComments] = useState(false);
-
-  // Текущий пользователь (тот, кто оставляет комментарии)
-  const { user } = useUserStore();
-
-  // Текст нового комментария
   const [commentText, setCommentText] = useState("");
 
-  // Реф на инпут комментария - чтобы сфокусировать, когда открываем блок
   const commentInputRef = useRef(null);
+  const { user } = useUserStore();
 
-  // Обработчик нажатия на кнопку "Comment" под постом
+  // Открытие блока комментариев + фокус на поле ввода
   const handleCommentClick = () => {
     setShowComments(true);
-    // Даём React дорендерить DOM, а потом фокусируем инпут
     setTimeout(() => {
       commentInputRef?.current?.focus();
     }, 0);
   };
 
-  // Инициалы текущего юзера (который пишет коммент)
+  // Инициалы текущего юзера (который пишет комментарий)
   const currentUserPlaceholder =
     user?.username
-      ?.split("")
+      ?.split(" ")
       .map((name) => name[0])
       .join("")
       .toUpperCase() || "U";
 
-  // Инициалы автора поста - fallback, если нет аватарки
+  // Инициалы автора поста
   const postUserPlaceholder =
     post?.user?.username
       ?.split(" ")
@@ -68,28 +67,27 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
     const text = commentText.trim();
     if (!text) return;
 
-    // Колбэк приходит из родителя (страницы), он сам дёрнет API/стор
     await onComment?.({ text });
     setCommentText("");
   };
 
-  // Аккуратно форматируем дату создания поста
+  // Форматирование даты создания поста
   const createdAt = (() => {
     if (!post?.createdAt) return "";
     const d = new Date(post.createdAt);
     return isNaN(+d) ? String(post.createdAt) : d.toLocaleString();
   })();
 
-  // Генерация ссылки на пост (можно потом заменить на реальный домен)
+  // Генерация ссылки на пост
   const generateSharedLink = () => {
     const origin =
       (typeof window !== "undefined" && window.location.origin) ||
       "http://localhost:3000";
-    const id = post?._Id || post?.id || "";
-    return `${origin}/${id}`;
+    const id = post?._id || post?.id || "";
+    return `${origin}/post/${id}`;
   };
 
-  // Логика построения ссылок для шаринга
+  // Открытие внешних шаринг-ссылок
   const handleShare = (platform) => {
     const url = generateSharedLink();
     const encoded = encodeURIComponent(url);
@@ -116,7 +114,7 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
     }
 
     if (shareUrl) {
-      window.open(shareUrl, "_blank", "noopener, noreferrer");
+      window.open(shareUrl, "_blank", "noopener,noreferrer");
     }
     setIsShareDialogOpen(false);
   };
@@ -124,7 +122,7 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
   return (
     <motion.div
       key={post?._id}
-      initial={{ opacity: 0, y: 20 }} // Анимация появления
+      initial={{ opacity: 0, y: 20 }} // анимация появления
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="bg-white dark:bg-[rgb(36,37,38)] rounded-lg"
@@ -146,10 +144,11 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
           </Avatar>
           <div>
             <p className="font-semibold dark:text-white">
-              {post?.user?.username || "User"}
+              {post?.user?.username || "Пользователь"}
             </p>
           </div>
         </div>
+
         <div className="flex items-center text-gray-500 dark:text-gray-400">
           <Clock className="h-4 w-4 mr-1" />
           <span className="text-sm">{createdAt}</span>
@@ -164,12 +163,12 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
             className="w-full h-[500px] rounded-lg mb-4 object-contain"
           >
             <source src={post.mediaUrl} type="video/mp4" />
-            Your browser does not support the video tag
+            Ваш браузер не поддерживает тег video
           </video>
         )}
       </div>
 
-      {/* ====== КНОПКИ ДЕЙСТВИЙ (лайк, коммент, шеринг) ====== */}
+      {/* ====== КНОПКИ ДЕЙСТВИЙ ====== */}
       <div className="md:flex justify-between px-2 mb-2 items-center">
         <div className="flex space-x-4">
           {/* Лайк */}
@@ -181,7 +180,7 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
             onClick={onLike}
           >
             <ThumbsUp className="mr-2 h-4 w-4" />
-            <span>{isLiked ? "Liked" : "Like"}</span>
+            <span>{isLiked ? "Нравится" : "Лайк"}</span>
           </Button>
 
           {/* Комментарий */}
@@ -191,7 +190,7 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
             onClick={handleCommentClick}
           >
             <MessageCircle className="mr-2 h-4 w-4" />
-            <span>Comment</span>
+            <span>Комментировать</span>
           </Button>
 
           {/* Шеринг */}
@@ -203,28 +202,30 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
                 onClick={onShare}
               >
                 <Share2 className="mr-2 h-4 w-4" />
-                <span>Share</span>
+                <span>Поделиться</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Share This Post</DialogTitle>
+                <DialogTitle>Поделиться постом</DialogTitle>
                 <DialogDescription>
-                  Choose how you want to share this post
+                  Выберите, где вы хотите поделиться этим постом
                 </DialogDescription>
               </DialogHeader>
 
               <div className="flex flex-col space-y-4">
                 <Button onClick={() => handleShare("facebook")}>
-                  Share on Facebook
+                  Поделиться в Facebook
                 </Button>
                 <Button onClick={() => handleShare("twitter")}>
-                  Share on Twitter
+                  Поделиться в X (Twitter)
                 </Button>
-                <Button onClick={() => handleShare("linkedin1")}>
-                  Share on LinkedIn
+                <Button onClick={() => handleShare("linkedin")}>
+                  Поделиться в LinkedIn
                 </Button>
-                <Button onClick={() => handleShare("copy")}>Copy Link</Button>
+                <Button onClick={() => handleShare("copy")}>
+                  Скопировать ссылку
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -233,7 +234,7 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
         {/* Мини-статистика по посту */}
         <div className="flex space-x-4 ml-2 text-sm text-gray-500 dark:text-gray-400">
           <Button variant="ghost" size="sm">
-            {post?.likeCount || 0} likes
+            {post?.likeCount || 0} лайков
           </Button>
 
           <Button
@@ -241,11 +242,11 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
             size="sm"
             onClick={() => setShowComments((v) => !v)}
           >
-            {post?.commentCount || post?.comments?.length || 0} Comments
+            {post?.commentCount || post?.comments?.length || 0} комментариев
           </Button>
 
           <Button variant="ghost" size="sm">
-            {post?.shareCount || 0} share
+            {post?.shareCount || 0} репостов
           </Button>
         </div>
       </div>
@@ -281,7 +282,7 @@ const VideoCard = ({ post, isLiked, onShare, onComment, onLike }) => {
 
               <Input
                 className="flex-1 mr-2 dark:border-gray-400"
-                placeholder="Write a comment..."
+                placeholder="Напишите комментарий..."
                 value={commentText}
                 ref={commentInputRef}
                 onChange={(e) => setCommentText(e.target.value)}

@@ -1,20 +1,24 @@
 "use client";
 
-const { useRouter } = require("next/router");
-const { default: LeftSideBar } = require("../../components/layout/LeftSideBar");
-const { Button } = require("@/components/ui/button");
+import LeftSideBar from "@/components/layout/LeftSideBar";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { usePostStore } from "../store/usePostStore";
+import { usePostStore } from "../../store/usePostStore";
 import VideoCard from "./VideoCard";
 
+/**
+ * Страница с видеопостами.
+ * Фильтрует все посты по mediaType === "video" и выводит отдельной лентой.
+ */
 const Page = () => {
-  // Локальное состоянгие лайкнутых постов (id-шники в Set)
+  // Локальное состояние лайкнутых постов (храним id в Set)
   const [likePosts, setLikePosts] = useState(new Set());
 
-  // Посты и экшены из zustand стора
+  // Посты и экшены из zustand-стора
   const {
     posts = [],
     fetchPost,
@@ -25,7 +29,7 @@ const Page = () => {
 
   const router = useRouter();
 
-  // Грузим посты при монтировании страницы
+  // Загружаем посты при монтировании страницы
   useEffect(() => {
     fetchPost();
   }, [fetchPost]);
@@ -33,28 +37,30 @@ const Page = () => {
   // Восстанавливаем лайки из localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
+
     const savedLikes = localStorage.getItem("likePosts");
     if (savedLikes) {
       setLikePosts(new Set(JSON.parse(savedLikes)));
     }
   }, []);
 
-  // Лайк / Дизлайк поста
+  // Лайк / дизлайк поста
   const handleLike = async (postId) => {
     const updatedLikePost = new Set(likePosts);
 
     if (updatedLikePost.has(postId)) {
       updatedLikePost.delete(postId);
-      toast.error("Post disliked successfully");
+      toast.error("Лайк убран");
     } else {
       updatedLikePost.add(postId);
-      toast.success("Post liked successfully");
+      toast.success("Пост понравился");
     }
 
     setLikePosts(updatedLikePost);
 
+    // Сохраняем состояние лайков в localStorage
     if (typeof window !== "undefined") {
-      localeStorage.setItem(
+      localStorage.setItem(
         "likePosts",
         JSON.stringify(Array.from(updatedLikePost))
       );
@@ -62,10 +68,10 @@ const Page = () => {
 
     try {
       await handleLikePost(postId);
-      await fetchPost();
+      await fetchPost(); // обновляем ленту после лайка
     } catch (error) {
       console.error(error);
-      toast.error("Failed to like or unlike the post");
+      toast.error("Не удалось поставить или убрать лайк");
     }
   };
 
@@ -82,15 +88,16 @@ const Page = () => {
   return (
     <div className="mt-12 min-h-screen">
       <LeftSideBar />
+
       <main className="ml-0 md:ml-64 p-6">
         {/* Кнопка назад */}
         <Button variant="ghost" className="mb-4" onClick={handleBack}>
           <ChevronLeft className="mr-2 h-4 w-4" />
-          Back to feed
+          Назад к ленте
         </Button>
 
         {/* Список видеокарточек */}
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto space-y-6">
           {videoPosts.map((post) => (
             <VideoCard
               key={post?._id}

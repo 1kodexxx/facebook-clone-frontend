@@ -1,4 +1,5 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -9,11 +10,17 @@ const formatDate = (value) => {
   return isNaN(+d) ? String(value) : d.toLocaleString();
 };
 
+/**
+ * Список комментариев под видео.
+ *
+ * comments: массив вида
+ *  { _id, text, createdAt, user: { username, profilePicture } }
+ */
 const VideoComments = ({ comments }) => {
   return (
     <>
       {comments?.map((comment) => {
-        const name = comment?.user?.username || "User";
+        const name = comment?.user?.username || "Пользователь";
         const initials =
           name
             .split(" ")
@@ -44,10 +51,10 @@ const VideoComments = ({ comments }) => {
               {/* Кнопки Like / Reply + дата */}
               <div className="flex items-center mt-1 text-xs text-gray-400 space-x-2">
                 <Button variant="ghost" size="sm">
-                  Like
+                  Лайк
                 </Button>
                 <Button variant="ghost" size="sm">
-                  Reply
+                  Ответить
                 </Button>
                 <span>{formatDate(comment?.createdAt)}</span>
               </div>
