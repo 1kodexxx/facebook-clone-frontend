@@ -1,32 +1,41 @@
 "use client";
 
+/**
+ * 🔄 Глобальный лоадер приложения
+ * Показывается поверх экрана во время загрузки данных или инициализации приложения.
+ * Использует анимации framer-motion.
+ */
+
 import { motion } from "framer-motion";
 
-export default function Loader() {
-  const dotVariants = {
-    hidden: { opacity: 0.3, scale: 0.5 },
-    visible: (i) => ({
-      opacity: 1,
-      scale: 1,
-      transition: {
-        delay: i * 0.2,
-        repeat: Infinity,
-        repeatType: "reverse",
-        duration: 0.6,
-      },
-    }),
-  };
+// Варианты анимации для трёх "точек" под логотипом
+const dotVariants = {
+  hidden: { opacity: 0.3, scale: 0.5 },
+  visible: (i) => ({
+    opacity: 1,
+    scale: 1,
+    transition: {
+      delay: i * 0.2,
+      repeat: Infinity,
+      repeatType: "reverse",
+      duration: 0.6,
+    },
+  }),
+};
 
+export default function Loader() {
   return (
-    <div className="fixed inset-0 flex flex-col gap-4 items-center justify-center bg-blue-600 dark:bg-blue-200 z-50">
-      <div className="relative  w-40 h-40">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-blue-600 dark:bg-blue-200">
+      {/* Иконка Facebook в круге */}
+      <div className="relative h-40 w-40">
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          className="w-full h-full text-white"
+          className="h-full w-full text-white"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
+          aria-hidden="true"
         >
           <path
             fill="currentColor"
@@ -34,11 +43,13 @@ export default function Loader() {
           />
         </motion.svg>
       </div>
+
+      {/* Анимированные точки под логотипом */}
       <div className="flex space-x-3">
         {[0, 1, 2].map((index) => (
           <motion.div
             key={index}
-            className="w-6 h-6 bg-white rounded-full"
+            className="h-6 w-6 rounded-full bg-white"
             initial="hidden"
             animate="visible"
             custom={index}
@@ -46,8 +57,10 @@ export default function Loader() {
           />
         ))}
       </div>
+
+      {/* Подпись под логотипом (на русском) */}
       <motion.div
-        className="text-white text-3xl mt-4 font-bold  tracking-widest"
+        className="mt-4 text-3xl font-bold tracking-widest text-white"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.5 }}
